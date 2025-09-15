@@ -404,7 +404,7 @@ const SharePostCard = ({
                       key={index}
                       className={`w-full object-cover rounded-lg ${
                         post.shared_post.image_urls.length === 1
-                          ? "h-auto max-h-64"
+                          ? "h-auto max-h"
                           : "h-24"
                       }`}
                       alt=""
