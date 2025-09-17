@@ -2,11 +2,11 @@ import React from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { X, MessageCircle, Camera } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
-const { t } = useTranslation();
+
 const Notifications = ({ t, message }) => {
   const navigate = useNavigate();
+  
 
   const handleReply = () => {
     navigate(`/messages/${message.from_user_id._id}`);
@@ -75,7 +75,7 @@ const Notifications = ({ t, message }) => {
                   {message.message_type === "image" ? (
                     <div className="space-y-2">
                       <p className="text-sm text-gray-600 font-medium">
-                        {t("Sent you a photo")}
+                        Sent you a photo
                       </p>
                       {message.media_url && (
                         <img
@@ -110,7 +110,7 @@ const Notifications = ({ t, message }) => {
                                          flex items-center justify-center space-x-2"
               >
                 <MessageCircle size={16} />
-                <span>{t("Reply")}</span>
+                <span>Reply</span>
               </button>
             </div>
 
