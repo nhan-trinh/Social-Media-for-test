@@ -2,9 +2,9 @@ import React from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { X, MessageCircle, Camera } from "lucide-react";
-// import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
-// const { t } = useTranslation();
+const { t } = useTranslation();
 const Notifications = ({ t, message }) => {
   const navigate = useNavigate();
 
@@ -75,7 +75,7 @@ const Notifications = ({ t, message }) => {
                   {message.message_type === "image" ? (
                     <div className="space-y-2">
                       <p className="text-sm text-gray-600 font-medium">
-                        Sent you a photo
+                        {t("Sent you a photo")}
                       </p>
                       {message.media_url && (
                         <img
