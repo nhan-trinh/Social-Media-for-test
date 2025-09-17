@@ -4,7 +4,10 @@ import Post from "../models/Post.js";
 import User from "../models/User.js";
 import Comment from "../models/Comment.js";
 import Share from "../models/Share.js";
-import { handleLikePost, handleNewPost } from "../services/notificationService.js";
+import {
+  handleLikePost,
+  handleNewPost,
+} from "../services/notificationService.js";
 
 export const addPost = async (req, res) => {
   try {
@@ -25,7 +28,9 @@ export const addPost = async (req, res) => {
           });
 
           // Detect if the uploaded file is a video
-          const isVideo = (image.mimetype && image.mimetype.startsWith("video")) || /\.(mp4|webm|ogg)$/i.test(image.originalname || "");
+          const isVideo =
+            (image.mimetype && image.mimetype.startsWith("video")) ||
+            /\.(mp4|webm|ogg)$/i.test(image.originalname || "");
 
           if (isVideo) {
             // For videos, keep the original format URL so the browser can play it
@@ -104,11 +109,11 @@ export const likePost = async (req, res) => {
     } else {
       post.likes_count.push(userId);
       await post.save();
-      
+
       // Send notification for like
       const io = req.app.get("io");
       await handleLikePost(io, postId, userId, post.user);
-      
+
       res.json({ success: true, message: "Post liked" });
     }
   } catch (error) {

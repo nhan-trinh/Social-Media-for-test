@@ -20,17 +20,18 @@ import CommentModal from "./CommentModal";
 import DeleteModal from "../components/DeleteModal";
 import EditModal from "../components/EditModalComment";
 import SharePostModal from "./SharePostModal";
+import { useTranslation } from "react-i18next";
 
-const PostCard = ({ 
-  post, 
-  onPostUpdated, 
-  onPostDeleted, 
+const PostCard = ({
+  post,
+  onPostUpdated,
+  onPostDeleted,
   onPostVisibilityChanged,
-  onPostShared 
+  onPostShared,
 }) => {
   // Sử dụng local state cho content để reflect thay đổi ngay lập tức
   const [currentContent, setCurrentContent] = useState(post.content);
-  
+
   const postWithHashtags = currentContent.replace(
     /(#\w+)/g,
     '<span class="text-indigo-600">$1</span>'
@@ -44,6 +45,7 @@ const PostCard = ({
   const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const dropdownRef = useRef(null);
+  const { t } = useTranslation();
 
   // Sync currentContent khi post.content thay đổi từ props
   useEffect(() => {
@@ -61,9 +63,9 @@ const PostCard = ({
       const savedCount = sessionStorage.getItem(`commentCount_${post._id}`);
       if (savedCount !== null) {
         const parsedCount = parseInt(savedCount);
-        console.log(
-          `Restored comment count from storage: ${parsedCount} for post ${post._id}`
-        );
+        // console.log(
+        //   `Restored comment count from storage: ${parsedCount} for post ${post._id}`
+        // );
         return parsedCount;
       }
     } catch (error) {
@@ -173,7 +175,7 @@ const PostCard = ({
     setIsHidden(true);
     setIsDropdownOpen(false);
     toast.success("Post hidden");
-    
+
     // Notify parent component
     if (onPostVisibilityChanged) {
       onPostVisibilityChanged(post._id, true);
@@ -183,7 +185,7 @@ const PostCard = ({
   const handleUnhidePost = () => {
     setIsHidden(false);
     toast.success("Post restored");
-    
+
     // Notify parent component
     if (onPostVisibilityChanged) {
       onPostVisibilityChanged(post._id, false);
@@ -203,7 +205,7 @@ const PostCard = ({
   // Handler khi post được update thành công
   const handlePostUpdateSuccess = (postId, newContent) => {
     setCurrentContent(newContent);
-    
+
     // Notify parent component to update the main feed
     if (onPostUpdated) {
       onPostUpdated(postId, newContent);
@@ -220,9 +222,9 @@ const PostCard = ({
 
   // Handler khi post được share thành công
   const handleShareSuccess = () => {
-    setShareCount(prev => prev + 1);
+    setShareCount((prev) => prev + 1);
     setIsSharingModalOpen(false);
-    
+
     // Notify parent component
     if (onPostShared) {
       onPostShared(post._id);
@@ -238,18 +240,21 @@ const PostCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <EyeOff className="w-5 h-5 text-gray-500 dark:text-gray-300" />
-            <span className="text-gray-600 dark:text-gray-300 text-sm">Post hidden</span>
+            <span className="text-gray-600 dark:text-gray-300 text-sm">
+              {t("Post hidden")}
+            </span>
           </div>
           <button
             onClick={handleUnhidePost}
             className="flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
           >
             <Undo2 className="w-4 h-4" />
-            Undo
+            {t("Undo")}
           </button>
         </div>
         <div className="text-gray-500 dark:text-gray-400 text-sm">
-          Post by @{post.user.username} • {moment(post.createdAt).fromNow()}
+          {t("Post by")} @{post.user.username} •{" "}
+          {moment(post.createdAt).fromNow()}
         </div>
       </div>
     );
@@ -278,7 +283,7 @@ const PostCard = ({
                 <BadgeCheck className="w-4 h-4 text-blue-500" />
               </div>
               <div className="text-gray-500 dark:text-gray-400 text-sm">
-                @{post.user.username} has posted{" "}
+                @{post.user.username} {t("has posted")}{" "}
                 {moment(post.createdAt).fromNow()}
               </div>
             </div>
@@ -302,14 +307,14 @@ const PostCard = ({
                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
                     >
                       <Edit className="w-4 h-4" />
-                      Edit Post
+                      {t("Edit Post")}
                     </button>
                     <button
                       onClick={handleDeletePost}
                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-red-600 flex items-center gap-2"
                     >
                       <Trash2 className="w-4 h-4" />
-                      Delete Post
+                      {t("Delete Post")}
                     </button>
                   </>
                 ) : (
@@ -318,7 +323,7 @@ const PostCard = ({
                     className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
                   >
                     <EyeOff className="w-4 h-4" />
-                    Hide Post
+                    {t("Hide Post")}
                   </button>
                 )}
               </div>
@@ -421,7 +426,7 @@ const PostCard = ({
         onPostUpdated={handlePostUpdateSuccess}
       />
 
-      <SharePostModal 
+      <SharePostModal
         isOpen={isSharingModalOpen}
         onClose={() => setIsSharingModalOpen(false)}
         post={post}

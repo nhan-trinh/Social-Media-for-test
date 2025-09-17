@@ -6,11 +6,13 @@ import { CirclePlus, LogOut } from "lucide-react";
 import { UserButton, useClerk } from "@clerk/clerk-react";
 import { useSelector } from "react-redux";
 import "../css/Button.css";
+import { useTranslation } from "react-i18next";
 
 const SideBar = ({ sideBarOpen, setSideBarOpen }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.value);
   const { signOut } = useClerk();
+  const { t } = useTranslation();
 
   return (
     <div
@@ -34,7 +36,7 @@ const SideBar = ({ sideBarOpen, setSideBarOpen }) => {
           className="animated-gradient-create-button mx-6 mt-6"
         >
           <CirclePlus className="w-5 h-5" />
-          Create Post
+          {t("Create Post")}
         </Link>
       </div>
 

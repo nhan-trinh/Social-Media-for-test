@@ -7,6 +7,7 @@ import api from "../api/axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll.js";
+import { useTranslation } from "react-i18next";
 
 const SharePostModal = ({ isOpen, onClose, post }) => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
   const [isSharing, setIsSharing] = useState(false);
   const { getToken } = useAuth();
   const modalRef = useOutsideClickOrScroll(onClose);
+  const {t} = useTranslation()
 
   const handleShare = async () => {
     try {
@@ -45,7 +47,7 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Share className="w-5 h-5 text-indigo-600" />
-            Share
+            {t("Share")}
           </h3>
           <button
             onClick={onClose}
@@ -59,7 +61,7 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
           {/* Body */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Share Content
+              {t("Share Content")}
             </label>
             <textarea
               className="w-full resize-none max-h-20 mt-4 text-sm outline-none placeholder-gray-400"
@@ -127,7 +129,7 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
             disabled={isSharing}
             className="flex-1 px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition disabled:opacity-50"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={handleShare}
@@ -137,12 +139,12 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
             {isSharing ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Updating...
+                {t("Updating...")}
               </>
             ) : (
               <>
                 <Share className="w-4 h-4" />
-                Share Post
+                {t("Share Post")}
               </>
             )}
           </button>

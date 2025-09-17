@@ -4,12 +4,14 @@ import moment from "moment";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const RecentMessage = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const { getToken } = useAuth();
+  const { t } = useTranslation();
 
   const fetchRecentMessages = useCallback(async () => {
     if (!user) return;
@@ -68,7 +70,9 @@ const RecentMessage = () => {
   if (loading && messages.length === 0) {
     return (
       <div className="bg-white max-w-xs mt-4 p-4 dark:bg-gray-900 min-h-4 rounded-md shadow text-xs text-slate-800">
-        <h3 className="font-semibold text-slate-800 mb-4">Recent Messages</h3>
+        <h3 className="font-semibold text-slate-800 mb-4">
+          {t("Recent Messages")}
+        </h3>
         <div className="flex flex-col space-y-3">
           {[...Array(3)].map((_, index) => (
             <div key={index} className="flex items-start gap-2 animate-pulse">
@@ -87,7 +91,9 @@ const RecentMessage = () => {
   return (
     <div className="bg-white max-w-xs mt-4 p-4 min-h-4 dark:bg-primary-dark rounded-md shadow text-xs text-slate-800">
       <div className="flex items-center dark:text-gray-400 justify-between mb-4">
-        <h3 className="font-semibold dark:text-gray-400 text-slate-800">Recent Messages</h3>
+        <h3 className="font-semibold dark:text-gray-400 text-slate-800">
+          {t("Recent Messages")}
+        </h3>
         <button
           onClick={fetchRecentMessages}
           className="text-indigo-500 hover:text-indigo-700 text-[10px] opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
@@ -100,7 +106,7 @@ const RecentMessage = () => {
       <div className="flex flex-col max-h-56 overflow-y-auto">
         {messages.length === 0 ? (
           <div className="text-center dark:text-gray-400 py-4 text-slate-500">
-            <p>Chưa có tin nhắn nào</p>
+            <p>{t("No messages yet")}</p>
           </div>
         ) : (
           messages.map((message, index) => (

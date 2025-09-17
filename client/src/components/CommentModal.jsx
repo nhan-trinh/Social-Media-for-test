@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import DeleteCommentModal from "./DeleteCommentModal";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const CommentModal = ({
   post,
@@ -45,6 +46,7 @@ const CommentModal = ({
 
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isOpen && post._id) {
@@ -60,9 +62,9 @@ const CommentModal = ({
         return total + 1 + (comment.replies ? comment.replies.length : 0);
       }, 0);
 
-      console.log(
-        `Total comments calculated: ${totalComments} for post ${post._id}`
-      );
+      // console.log(
+      //   `Total comments calculated: ${totalComments} for post ${post._id}`
+      // );
       // Sync với PostCard và lưu vào sessionStorage
       onCommentsCountSync(totalComments);
 
@@ -127,10 +129,10 @@ const CommentModal = ({
           onCommentAdded(1); // +1 comment
         }
       } else {
-        toast.error(data.message || "Không thể thêm bình luận");
+        toast.error(data.message || "Cannot add comment");
       }
     } catch (error) {
-      toast.error("Không thể thêm bình luận");
+      toast.error("Cannot add comment");
       console.error(error);
     } finally {
       setSubmitting(false);
@@ -178,10 +180,10 @@ const CommentModal = ({
           onCommentAdded(1);
         }
       } else {
-        toast.error(data.message || "Không thể thêm reply");
+        toast.error(data.message || "Cannot add reply");
       }
     } catch (error) {
-      toast.error("Không thể thêm reply");
+      toast.error("Cannot add reply");
       console.error(error);
     } finally {
       setReplySubmitting(false);
@@ -223,10 +225,10 @@ const CommentModal = ({
           })
         );
       } else {
-        toast.error(data.message || "Không thể cập nhật bình luận");
+        toast.error(data.message || "Cannot update the comment");
       }
     } catch (error) {
-      toast.error("Không thể cập nhật bình luận");
+      toast.error("Cannot update the comment");
       console.error(error);
     }
   };
@@ -357,7 +359,7 @@ const CommentModal = ({
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">
-                <p>No media to display</p>
+                <p>{t("No media to display")}</p>
               </div>
             )}
           </div>
@@ -366,7 +368,9 @@ const CommentModal = ({
           <div className="w-full md:w-96 md:min-w-96 flex flex-col bg-white dark:bg-gray-900 md:border-l border-gray-200 dark:border-gray-700">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg dark:text-white font-semibold">Comments</h3>
+              <h3 className="text-lg dark:text-white font-semibold">
+                {t("Comments")}
+              </h3>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 dark:bg-gray-500 rounded-full transition"
@@ -459,7 +463,7 @@ const CommentModal = ({
                 </div>
               ) : comments.length === 0 ? (
                 <p className="text-center text-gray-500 py-4 text-sm">
-                  Be the first one to comment!
+                  {t("Be the first one to comment!")}
                 </p>
               ) : (
                 <div className="space-y-3 ">
@@ -507,7 +511,7 @@ const CommentModal = ({
                                   onClick={() => handleUpdateComment(c._id)}
                                   className="px-2 py-1 text-xs bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                                 >
-                                  Save
+                                  {t("Save")}
                                 </button>
                               </div>
                             ) : (
@@ -549,7 +553,7 @@ const CommentModal = ({
                               }}
                               className="text-xs hover:text-indigo-500 transition cursor-pointer"
                             >
-                              Reply
+                              {t("Reply")}
                             </button>
                             {c.user._id === currentUser._id && (
                               <>
@@ -561,7 +565,7 @@ const CommentModal = ({
                                   }}
                                   className="text-xs hover:text-indigo-500 transition cursor-pointer"
                                 >
-                                  Edit
+                                  {t("Edit")}
                                 </button>
                                 <button
                                   onClick={(e) => {
@@ -570,7 +574,7 @@ const CommentModal = ({
                                   }}
                                   className="text-xs hover:text-red-500 transition cursor-pointer"
                                 >
-                                  Delete
+                                  {t("Delete")}
                                 </button>
                               </>
                             )}
@@ -669,7 +673,7 @@ const CommentModal = ({
                                         }
                                         className="px-2 py-1 text-xs bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition cursor-pointer"
                                       >
-                                        Save
+                                        {t("Save")}
                                       </button>
                                     </div>
                                   ) : (
@@ -716,7 +720,7 @@ const CommentModal = ({
                                         }}
                                         className="text-xs hover:text-indigo-500 transition cursor-pointer"
                                       >
-                                        Edit
+                                        {t("Edit")}
                                       </button>
                                       <button
                                         onClick={(e) => {
@@ -725,7 +729,7 @@ const CommentModal = ({
                                         }}
                                         className="text-xs hover:text-red-500 transition cursor-pointer"
                                       >
-                                        Delete
+                                        {t("Delete")}
                                       </button>
                                     </>
                                   )}
@@ -754,7 +758,7 @@ const CommentModal = ({
                     type="text"
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    placeholder="Write a comment..."
+                    placeholder={t("Write a comment...")}
                     className="flex-1 bg-transparent outline-none text-sm text-zinc-900 placeholder-gray-400"
                     disabled={submitting}
                   />

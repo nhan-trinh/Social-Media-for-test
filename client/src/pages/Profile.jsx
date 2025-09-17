@@ -12,10 +12,12 @@ import { useSelector } from "react-redux";
 import SkeletonUserProfile from "../components/SkeletonUserProfile";
 import SkeletonPostCard from "../components/SkeletonPostCard";
 import SharePostCard from "../components/SharePostCard";
+import { useTranslation } from "react-i18next";
 
 const Profile = () => {
   const currentUser = useSelector((state) => state.user.value);
 
+  const { t } = useTranslation();
   const { getToken } = useAuth();
   const { profileId } = useParams();
   const [user, setUser] = useState(null);
@@ -155,7 +157,7 @@ const Profile = () => {
                           alt=""
                         />
                         <p className="absolute bottom-0 right-0 text-xs p-1 px-3 backdrop-blur-xl text-white opacity-0 group-hover:opacity-100 transition duration-300">
-                          Posted {moment(post.createdAt).fromNow()}
+                          {t("Posted") }{moment(post.createdAt).fromNow()}
                         </p>
                       </Link>
                     ))}
@@ -167,7 +169,7 @@ const Profile = () => {
       </div>
       {showEdit && <ProfileModal setShowEdit={setShowEdit} />}
     </div>
-  ) : ( 
+  ) : (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       <SkeletonUserProfile />
       <div className="mt-6 flex flex-col items-center gap-6">

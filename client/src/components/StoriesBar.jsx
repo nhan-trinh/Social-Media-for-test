@@ -6,6 +6,7 @@ import StoryViewers from "./StoryViewers";
 import { useAuth } from "@clerk/clerk-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const StoriesBar = () => {
   const { getToken } = useAuth();
@@ -13,7 +14,8 @@ const StoriesBar = () => {
   const [stories, setStories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [viewStory, setviewStory] = useState(null);
-  
+  const { t } = useTranslation();
+
   const fetchStories = async () => {
     try {
       const token = await getToken();
@@ -22,7 +24,9 @@ const StoriesBar = () => {
       });
       if (data.success) {
         // Lọc ra những stories có user hợp lệ
-        const validStories = data.stories.filter(story => story && story.user);
+        const validStories = data.stories.filter(
+          (story) => story && story.user
+        );
         setStories(validStories);
       } else {
         toast(data.message);
@@ -48,7 +52,7 @@ const StoriesBar = () => {
               <Plus className="w-5 h-5 text-white" />
             </div>
             <p className="text-sm font-medium text-slate-700 dark:text-slate-200 text-center">
-              Create Stories
+              {t("Create Stories")}
             </p>
           </div>
         </div>
@@ -65,18 +69,18 @@ const StoriesBar = () => {
               className={`relative rounded-lg shadow min-w-30 max-w-30 max-h-40 cursor-pointer hover:shadow-lg transition-all duration-200 bg-gradient-to-b from-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-800 dark:from-gray-800 dark:to-gray-900 hover:dark:from-gray-700 hover:dark:to-gray-800 active:scale-95`}
             >
               <img
-                src={story.user.profile_picture || '/default-avatar.png'} // Fallback image
+                src={story.user.profile_picture || "/default-avatar.png"} // Fallback image
                 alt="User avatar"
                 className="absolute size-8 top-3 left-3 z-10 rounded-full ring ring-gray-100 dark:ring-gray-800 shadow"
                 loading="lazy"
                 decoding="async"
                 onError={(e) => {
                   // Fallback nếu ảnh không load được
-                  e.target.src = '/default-avatar.png';
+                  e.target.src = "/default-avatar.png";
                 }}
               />
               <p className="absolute top-18 left-3 text-white/60 dark:text-slate-300/70 text-sm truncate max-w-24">
-                {story.content || ''}
+                {story.content || ""}
               </p>
               <p className="text-white absolute bottom-1 right-2 z-10 text-xs">
                 {moment(story.createdAt).fromNow()}
@@ -92,7 +96,7 @@ const StoriesBar = () => {
                       decoding="async"
                       onError={(e) => {
                         // Ẩn ảnh nếu không load được
-                        e.target.style.display = 'none';
+                        e.target.style.display = "none";
                       }}
                     />
                   ) : (
@@ -102,7 +106,7 @@ const StoriesBar = () => {
                       preload="none"
                       onError={(e) => {
                         // Ẩn video nếu không load được
-                        e.target.style.display = 'none';
+                        e.target.style.display = "none";
                       }}
                     />
                   )}

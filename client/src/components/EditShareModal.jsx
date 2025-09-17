@@ -6,13 +6,15 @@ import api from "../api/axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
+import { useTranslation } from "react-i18next";
 
 const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
   const [content, setContent] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const { getToken } = useAuth();
-  const modalRef = useOutsideClickOrScroll(onClose)
+  const modalRef = useOutsideClickOrScroll(onClose);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Initialize content when modal opens
   useEffect(() => {
@@ -72,12 +74,15 @@ const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
 
   return (
     <div className="fixed inset-0 z-[110] min-h-screen bg-black/30 backdrop-blur flex items-center justify-center p-4">
-      <div ref={modalRef} className="bg-white rounded-2xl dark:bg-gray-900 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-2xl dark:bg-gray-900 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-400 flex items-center gap-2">
             <Edit className="w-5 h-5 text-indigo-600" />
-            Edit Post
+            {t("Edit Post")}
           </h3>
           <button
             onClick={onClose}
@@ -110,7 +115,7 @@ const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
           {/* Content Editor */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
-              Post Content
+              {t("Post Content")}
             </label>
             <textarea
               value={content}
@@ -122,7 +127,7 @@ const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
             />
             <div className="flex justify-between items-center mt-2">
               <p className="text-xs text-gray-500">
-                Press Cmd/Ctrl + Enter to save
+                {t("Press Cmd/Ctrl + Enter to save")}
               </p>
               <span
                 className={`text-xs ${
@@ -133,37 +138,6 @@ const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
               </span>
             </div>
           </div>
-
-          {/* Preview */}
-          {/* {content.trim() && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Preview
-              </label>
-              <div className="bg-gray-50 rounded-lg p-3 border">
-                <div className="flex items-center gap-3 mb-2">
-                  <img
-                    src={post.user.profile_picture}
-                    alt=""
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium text-sm">{post.user.full_name}</span>
-                      <BadgeCheck className="w-3 h-3 text-blue-500" />
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      @{post.user.username} • now
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="text-gray-800 text-sm whitespace-pre-line"
-                  dangerouslySetInnerHTML={{ __html: postWithHashtags }}
-                />
-              </div>
-            </div>
-          )} */}
 
           {/* Images (if any) */}
           <div
@@ -269,7 +243,7 @@ const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
             disabled={isUpdating}
             className="flex-1 px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition disabled:opacity-50"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={handleUpdate}
@@ -279,12 +253,12 @@ const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
             {isUpdating ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Updating...
+                {t("Updating...")}
               </>
             ) : (
               <>
                 <Edit className="w-4 h-4" />
-                Update Post
+                {t("Update Post")}
               </>
             )}
           </button>

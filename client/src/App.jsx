@@ -33,7 +33,7 @@ const App = () => {
   const [retryFetchUser, setRetryFetchUser] = useState(false);
   const location = useLocation();
 
-const visiblePath = ["/profile"];
+const visiblePath = ["/setting"];
 const shouldShowDarkModeToggle = user && visiblePath.includes(location.pathname);
 
   // Lấy thông tin user + connections khi user thay đổi

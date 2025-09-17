@@ -1,32 +1,34 @@
 import { BadgeCheck, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const StoryViewers = ({ viewStory, setviewStory }) => {
   const [progress, setProgress] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let timer, progressInterval;
-    
-    if(viewStory && viewStory.media_type !== 'video'){
-        setProgress(0)
 
-        const duration = 10000;
-        const setTime = 100;
-        let elapsed = 0;
+    if (viewStory && viewStory.media_type !== "video") {
+      setProgress(0);
 
-        progressInterval = setInterval(() => {
-            elapsed += setTime;
-            setProgress((elapsed / duration ) * 100)
-        }, setTime);
+      const duration = 10000;
+      const setTime = 100;
+      let elapsed = 0;
 
-        timer = setTimeout(()=> {
-            setviewStory(null)
-        }, duration)
+      progressInterval = setInterval(() => {
+        elapsed += setTime;
+        setProgress((elapsed / duration) * 100);
+      }, setTime);
+
+      timer = setTimeout(() => {
+        setviewStory(null);
+      }, duration);
     }
-    return()=>{
-        clearTimeout(timer);
-        clearInterval(progressInterval)
-    }
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressInterval);
+    };
   }, [viewStory, setviewStory]);
   const handleClose = () => {
     setviewStory(null);
@@ -52,7 +54,6 @@ const StoryViewers = ({ viewStory, setviewStory }) => {
             className="max-h-screen"
             controls
             autoPlay
-            
           />
         );
       case "text":
@@ -79,14 +80,19 @@ const StoryViewers = ({ viewStory, setviewStory }) => {
       <div className="absolute top-0 left-0 w-full h-1 bg-gray-700">
         <div
           className="h-full bg-white transition-all duration-100 linear"
-          style={{ width: `${progress}%`}}
+          style={{ width: `${progress}%` }}
         ></div>
       </div>
-      <div className="absolute top-4 left-4 flex items-center space-x-3 p-2 px-4 sm:p-4 sm:px-8 backdrop-blur-2xl rounded bg-black/50">
+      <div
+        onClick={() => navigate(`/profile/` + viewStory.user._id)}
+        className="absolute top-4 left-4 flex items-center space-x-3 p-2 px-4 sm:p-4 sm:px-8 backdrop-blur-2xl rounded bg-black/50 cursor-pointer"
+      >
         <img
           src={viewStory.user?.profile_picture}
           alt=""
           className="size-7 sm:size-8 rounded-full object-cover border border-white"
+          loading="lazy"
+          decoding="async"
         />
         <div className="text-white font-medium flex items-center gap-1.5">
           <span>{viewStory.user?.full_name}</span>

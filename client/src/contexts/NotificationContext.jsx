@@ -3,6 +3,7 @@ import { useSocket } from './SocketContext';
 import { useAuth, useUser } from "@clerk/clerk-react";
 import toast from 'react-hot-toast';
 import api from '../api/axios';
+import { useTranslation } from 'react-i18next';
 // import { useNotification } from '../contexts/NotificationContext'
 
 const NotificationContext = createContext();
@@ -22,6 +23,7 @@ export const NotificationProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { getToken } = useAuth();
+  const {t} = useTranslation()
 
   // Fetch notifications from API
   const fetchNotifications = async (page = 1, limit = 20) => {

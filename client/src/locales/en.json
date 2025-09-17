@@ -1,0 +1,14 @@
+{
+  "welcome": "Welcome",
+  "language": "Language",
+  "son of bitch": "Son of bitch",
+   "menu": {
+    "Feed": "Feed",
+    "Messages": "Messages",
+    "Friends": "Friends",
+    "Notifications": "Notifications",
+    "Discover": "Discover",
+    "Profile": "Profile",
+    "Setting": "Setting"
+  }
+}

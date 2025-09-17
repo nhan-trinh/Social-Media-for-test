@@ -6,17 +6,40 @@ import { motion } from "framer-motion";
 
 const Login = () => {
   return (
-    <div className="relative min-h-screen flex flex-col md:flex-row overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-800 text-white">
-      {/* Background overlay */}
-      <img
-        src={assets.bgImage}
-        alt="background"
-        className="absolute top-0 left-0 w-full h-full object-cover opacity-30"
-        loading="lazy"
-        decoding="async"
-        fetchPriority="low"
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/60 via-purple-800/60 to-indigo-900/70"></div>
+    <div className="relative min-h-screen flex flex-col md:flex-row overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white">
+      {/* Animated Background Grid */}
+      <div className="absolute inset-0 opacity-10">
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(139, 92, 246, 0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(139, 92, 246, 0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: "50px 50px",
+            animation: "gridMove 20s linear infinite",
+          }}
+        />
+      </div>
+
+      {/* Floating Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ y: [0, -20, 0], rotate: [0, 5, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-pink-500 to-violet-500 rounded-full blur-sm opacity-60"
+        />
+        <motion.div
+          animate={{ y: [0, 15, 0], rotate: [0, -8, 0], scale: [1, 0.9, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute top-40 right-20 w-16 h-16 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full blur-sm opacity-50"
+        />
+        <motion.div
+          animate={{ y: [0, -10, 0], x: [0, 10, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-32 left-1/4 w-12 h-12 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full blur-sm opacity-40"
+        />
+      </div>
 
       {/* Left Section */}
       <motion.div
@@ -45,7 +68,15 @@ const Login = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6, duration: 0.6 }}
           >
-            <img src={assets.group_users} alt="" className="h-8 md:h-10" loading="lazy" decoding="async" width={40} height={40} />
+            <img
+              src={assets.group_users}
+              alt=""
+              className="h-8 md:h-10"
+              loading="lazy"
+              decoding="async"
+              width={40}
+              height={40}
+            />
             <div>
               <div className="flex">
                 {Array(5)
@@ -59,7 +90,7 @@ const Login = () => {
                   ))}
               </div>
               <p className="text-sm md:text-base text-gray-200">
-                Trusted by <span className="font-semibold">12k+</span> developers
+                Trusted by <span className="font-semibold">0</span> developers
               </p>
             </div>
           </motion.div>
@@ -102,17 +133,17 @@ const Login = () => {
         </motion.div>
       </motion.div>
 
-      {/* Floating glowing circles for "wow" effect */}
-      <motion.div
-        className="absolute w-72 h-72 bg-purple-500 rounded-full filter blur-3xl opacity-30 top-10 left-10"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.35, 0.2] }}
-        transition={{ repeat: Infinity, duration: 6 }}
-      />
-      <motion.div
-        className="absolute w-96 h-96 bg-indigo-500 rounded-full filter blur-3xl opacity-30 bottom-10 right-10"
-        animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.3, 0.15] }}
-        transition={{ repeat: Infinity, duration: 8 }}
-      />
+      {/* Animated CSS */}
+      <style jsx="true">{`
+        @keyframes gridMove {
+          0% {
+            transform: translate(0, 0);
+          }
+          100% {
+            transform: translate(50px, 50px);
+          }
+        }
+      `}</style>
     </div>
   );
 };

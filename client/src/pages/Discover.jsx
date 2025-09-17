@@ -8,48 +8,54 @@ import { useAuth } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { fetchUser } from "../features/user/userSlice";
+import { useTranslation } from "react-i18next";
 
 const Discover = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [input, setInput] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
-  const {getToken} = useAuth()
+  const { getToken } = useAuth();
 
   const handleSearch = async (e) => {
     if (e.key === "Enter") {
       try {
-        setUsers([])
-        setLoading(true)
-        const {data} = await api.post('/api/user/discover', {input}, {
-          headers: {Authorization: `Bearer ${await getToken()}`}
-        })
-        data.success ? setUsers(data.users) : toast.error(data.message)
-        setLoading(false)
-        setInput('')
+        setUsers([]);
+        setLoading(true);
+        const { data } = await api.post(
+          "/api/user/discover",
+          { input },
+          {
+            headers: { Authorization: `Bearer ${await getToken()}` },
+          }
+        );
+        data.success ? setUsers(data.users) : toast.error(data.message);
+        setLoading(false);
+        setInput("");
       } catch (error) {
-          toast.error(error.message)
+        toast.error(error.message);
       }
-      setLoading(false)
+      setLoading(false);
     }
   };
 
-  useEffect(()=>{
-    getToken().then((token)=> {
-      dispatch(fetchUser(token))
-    })
-  }, [])
+  useEffect(() => {
+    getToken().then((token) => {
+      dispatch(fetchUser(token));
+    });
+  }, []);
 
   return (
     <div className="relative h h-full overflow-y-scroll bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-6xl mx-auto p-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Discover Friend
+            {t("Discover Friend")}
           </h1>
           <p className="text-slate-600 dark:text-gray-400">
-            Connect with amzing people all around the world
+            {t("Connect with amzing people all around the world")}
           </p>
         </div>
 
@@ -70,14 +76,12 @@ const Discover = () => {
         </div>
 
         <div className="flex flex-wrap gap-6">
-          {users.map((user)=>(
+          {users.map((user) => (
             <UserCard user={user} key={user._id} />
           ))}
         </div>
 
-        {
-          loading && (<Loading height="60vh"/>)
-        }
+        {loading && <Loading height="60vh" />}
       </div>
     </div>
   );

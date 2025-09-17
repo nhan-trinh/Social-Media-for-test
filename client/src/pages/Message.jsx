@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
 import { useSelector } from "react-redux";
 import api from "../api/axios";
+import { useTranslation } from "react-i18next";
 
 const Message = () => {
+  const { t } = useTranslation();
   const { connections } = useSelector((state) => state.connections);
   const { getToken, userId: currentUserId } = useAuth();
   const navigate = useNavigate();
@@ -81,12 +83,12 @@ const Message = () => {
         <div className="mb-8">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              Messages
+              {t("Messages")}
             </h1>
             {/* Connection status sẽ được quản lý từ global state */}
           </div>
           <p className="text-slate-600 dark:text-gray-400">
-            Talk to your friends and family
+            {t("Talk to your friends and family")}
           </p>
         </div>
 
@@ -152,7 +154,7 @@ const Message = () => {
                     </div>
                   ) : (
                     <p className="text-sm text-gray-400 mt-2">
-                      No messages yet
+                      {t("No messages yet")}
                     </p>
                   )}
                 </div>
@@ -183,9 +185,9 @@ const Message = () => {
 
           {connections.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No connections yet</p>
+              <p className="text-gray-500 text-lg">{t("No messages yet")}</p>
               <p className="text-gray-400">
-                Connect with friends to start messaging
+                {t("Connect with friends to start messaging")}
               </p>
             </div>
           )}

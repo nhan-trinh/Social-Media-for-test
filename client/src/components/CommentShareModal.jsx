@@ -6,6 +6,7 @@ import { useAuth } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import DeleteCommentModal from "./DeleteCommentModal";
+import { useTranslation } from "react-i18next";
 // import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
 
 const CommentShareModel = ({
@@ -31,6 +32,7 @@ const CommentShareModel = ({
   const { getToken } = useAuth();
   // const modalRef = useOutsideClickOrScroll(onClose)
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isOpen && post._id) {
@@ -46,9 +48,9 @@ const CommentShareModel = ({
         return total + 1 + (comment.replies ? comment.replies.length : 0);
       }, 0);
 
-      console.log(
-        `Total comments calculated: ${totalComments} for post ${post._id}`
-      );
+      // console.log(
+      //   `Total comments calculated: ${totalComments} for post ${post._id}`
+      // );
       // Sync với PostCard và lưu vào sessionStorage
       onCommentsCountSync(totalComments);
 
@@ -110,10 +112,10 @@ const CommentShareModel = ({
           onCommentAdded(1); // +1 comment
         }
       } else {
-        toast.error(data.message || "Không thể thêm bình luận");
+        toast.error(data.message || "Cannot add comment");
       }
     } catch (error) {
-      toast.error("Không thể thêm bình luận");
+      toast.error("Cannot add comment");
       console.error(error);
     } finally {
       setSubmitting(false);
@@ -161,10 +163,10 @@ const CommentShareModel = ({
           onCommentAdded(1);
         }
       } else {
-        toast.error(data.message || "Không thể thêm reply");
+        toast.error(data.message || "Cannot add reply");
       }
     } catch (error) {
-      toast.error("Không thể thêm reply");
+      toast.error("Cannot add reply");
       console.error(error);
     } finally {
       setReplySubmitting(false);
@@ -206,10 +208,10 @@ const CommentShareModel = ({
           })
         );
       } else {
-        toast.error(data.message || "Không thể cập nhật bình luận");
+        toast.error(data.message || "Cannot update comment");
       }
     } catch (error) {
-      toast.error("Không thể cập nhật bình luận");
+      toast.error("Cannot update comment");
       console.error(error);
     }
   };
@@ -293,7 +295,7 @@ const CommentShareModel = ({
         );
       }
     } catch (error) {
-      toast.error("Không thể thực hiện hành động");
+      toast.error("Cannot perform action");
       console.error(error);
     }
   };
@@ -318,7 +320,7 @@ const CommentShareModel = ({
           {/* Header */}
           <div className="flex items-center justify-between px-5 dark:bg-gray-900 py-3 border-t border-l border-r border-gray-200 dark:border-gray-900 rounded-t-lg sticky top-0 bg-white z-10">
             <h3 className="text-lg dark:text-white font-semibold">
-              Comments (
+              {t("Comments")} (
               {comments.reduce(
                 (total, comment) => total + 1 + (comment.replies?.length || 0),
                 0
@@ -346,7 +348,9 @@ const CommentShareModel = ({
                 />
                 <div>
                   <div className="flex items-center gap-1">
-                    <span className="font-semibold dark:text-white">{post.user.full_name}</span>
+                    <span className="font-semibold dark:text-white">
+                      {post.user.full_name}
+                    </span>
                     <BadgeCheck className="w-4 h-4 text-blue-500 " />
                   </div>
                   <p className="text-sm text-gray-500">
@@ -483,7 +487,7 @@ const CommentShareModel = ({
                 </div>
               ) : comments.length === 0 ? (
                 <p className="text-center text-gray-500 dark:text-gray-400">
-                  Be the first one to comment!
+                  {t("Be the first one to comment!")}
                 </p>
               ) : (
                 comments.map((c) => (
@@ -529,7 +533,7 @@ const CommentShareModel = ({
                                 onClick={() => handleUpdateComment(c._id)}
                                 className="px-3 py-1 text-xs bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                               >
-                                Save
+                                {t("Save")}
                               </button>
                               <button
                                 onClick={() => {
@@ -538,11 +542,13 @@ const CommentShareModel = ({
                                 }}
                                 className="px-3 py-1 text-xs bg-gray-300 rounded-lg hover:bg-gray-400 transition"
                               >
-                                Cancel
+                                {t("Cancel")}
                               </button>
                             </div>
                           ) : (
-                            <p className="text-sm text-gray-800 dark:text-gray-400">{c.content}</p>
+                            <p className="text-sm text-gray-800 dark:text-gray-400">
+                              {c.content}
+                            </p>
                           )}
                         </div>
 
@@ -574,7 +580,7 @@ const CommentShareModel = ({
                             }}
                             className="flex items-center gap-1 hover:text-indigo-500 transition cursor-pointer"
                           >
-                            <Reply className="w-3 h-3 " /> Reply
+                            <Reply className="w-3 h-3 " /> {t("Reply")}
                           </button>
                           {c.user._id === currentUser._id && (
                             <>
@@ -586,7 +592,7 @@ const CommentShareModel = ({
                                 }}
                                 className="flex items-center gap-1 hover:text-indigo-500 transition cursor-pointer"
                               >
-                                <Edit className="w-3 h-3" /> Edit
+                                <Edit className="w-3 h-3" /> {t("Edit")}
                               </button>
                               <button
                                 onClick={(e) => {
@@ -595,7 +601,7 @@ const CommentShareModel = ({
                                 }}
                                 className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer"
                               >
-                                <Trash2 className="w-3 h-3" /> Delete
+                                <Trash2 className="w-3 h-3" /> {t("Delete")}
                               </button>
                             </>
                           )}
@@ -645,7 +651,7 @@ const CommentShareModel = ({
                             }}
                             className="px-3 py-1 text-xs text-gray-500 hover:text-gray-700 transition"
                           >
-                            Cancel
+                            {t("Cancel")}
                           </button>
                         </form>
                       </div>
@@ -703,7 +709,7 @@ const CommentShareModel = ({
                                       }
                                       className="px-3 py-1 text-xs bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                                     >
-                                      Save
+                                      {t("Save")}
                                     </button>
                                     <button
                                       onClick={() => {
@@ -712,7 +718,7 @@ const CommentShareModel = ({
                                       }}
                                       className="px-3 py-1 text-xs bg-gray-300 rounded-lg hover:bg-gray-400 transition"
                                     >
-                                      Cancel
+                                      {t("Cancel")}
                                     </button>
                                   </div>
                                 ) : (
@@ -755,7 +761,7 @@ const CommentShareModel = ({
                                       }}
                                       className="flex items-center gap-1 hover:text-indigo-500 transition cursor-pointer"
                                     >
-                                      <Edit className="w-3 h-3 " /> Edit
+                                      <Edit className="w-3 h-3 " /> {t("Edit")}
                                     </button>
                                     <button
                                       onClick={(e) => {
@@ -765,7 +771,7 @@ const CommentShareModel = ({
                                       className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer"
                                     >
                                       <Trash2 className="w-3 h-3 cursor-pointer" />{" "}
-                                      Delete
+                                      {t("Delete")}
                                     </button>
                                   </>
                                 )}
@@ -794,7 +800,7 @@ const CommentShareModel = ({
                   type="text"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Write a comment..."
+                  placeholder={t("Write a comment...")}
                   className="flex-1 bg-transparent outline-none text-sm text-zinc-900 dark:text-white placeholder-gray-400"
                   disabled={submitting}
                 />

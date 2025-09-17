@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
+import { useTranslation } from "react-i18next";
 
 const StoriesModal = ({ setShowModal, fetchStories }) => {
   const bgColor = [
@@ -22,6 +23,7 @@ const StoriesModal = ({ setShowModal, fetchStories }) => {
   const [media, setMedia] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const modalRef = useOutsideClickOrScroll(setShowModal);
+  const {t} = useTranslation()
 
   const { getToken } = useAuth();
 
@@ -109,7 +111,7 @@ const StoriesModal = ({ setShowModal, fetchStories }) => {
           >
             <ArrowLeft />
           </button>
-          <h2 className="text-lg font-semibold">Create Story</h2>
+          <h2 className="text-lg font-semibold">{t("Create Story")}</h2>
           <span className="w-10"></span>
         </div>
 
@@ -160,7 +162,7 @@ const StoriesModal = ({ setShowModal, fetchStories }) => {
               mode === "text" ? "bg-white text-black" : "bg-zinc-800"
             }`}
           >
-            <TextIcon size={18} /> Text
+            <TextIcon size={18} /> {t("Text")}
           </button>
           <label
             className={`flex-1 flex items-center justify-center gap-2 p-2 rounded cursor-pointer ${
@@ -184,7 +186,7 @@ const StoriesModal = ({ setShowModal, fetchStories }) => {
           }
           className="flex items-center justify-center gap-2 text-white py-3 mt-4 w-full rounded bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 active:scale-95 transition cursor-pointer"
         >
-          <Sparkle size={18} /> Create Story
+          <Sparkle size={18} /> {t("Create Story")}
         </button>
       </div>
     </div>

@@ -6,12 +6,14 @@ import { useAuth } from "@clerk/clerk-react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import "../css/Uploadfile.css";
+import { useTranslation } from "react-i18next";
 const CreatePost = () => {
   const navigate = useNavigate();
 
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const user = useSelector((state) => state.user.value);
 
@@ -62,10 +64,10 @@ const CreatePost = () => {
       <div className="max-w-6xl mx-auto p-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-teal-50 mb-2">
-            Create Post
+            {t("Create Post")}
           </h1>
           <p className="text-slate-600 dark:text-gray-400">
-            Share your thoughts with the world
+            {t("Share your thoughts with the world")}
           </p>
         </div>
 
@@ -145,14 +147,14 @@ const CreatePost = () => {
               onClick={() =>
                 toaster.promise(handleSubmit(), {
                   loading: "uploading....",
-                  success: <p>Post Added</p>,
-                  error: <p>Post not Added</p>,
+                  success: <p>{t("Post Added")}</p>,
+                  error: <p>{t("Post not Added")}</p>,
                 })
               }
               className="text-sm bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 
             active:scale-95 transition text-white font-medium px-8 py-2 rounded-md cursor-pointer"
             >
-              Post
+              {t("Post")}
             </button>
           </div>
         </div>

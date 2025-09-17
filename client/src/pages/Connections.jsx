@@ -12,12 +12,14 @@ import { useAuth } from "@clerk/clerk-react";
 import { fetchConnections } from "../features/connections/connectionSlice";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const Connections = () => {
   const [currentTab, setCurrentTab] = useState("Followers");
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const { connections, pendingConnections, followers, following } = useSelector(
     (state) => state.connections
@@ -80,9 +82,11 @@ const Connections = () => {
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900">
       <div className="max-w-6xl max-auto p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2 dark:text-white">Friends</h1>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2 dark:text-white">
+            {t("Friends")}
+          </h1>
           <p className="text-slate-600 dark:text-gray-400">
-            Manage your network and discover new connections
+            {t("Manage your network and discover new connections")}
           </p>
         </div>
 
@@ -134,8 +138,12 @@ const Connections = () => {
                   className="rounded-full w-12 h-12 shadow-md mx-auto ring ring-gray-100 dark:ring-gray-800"
                 />
                 <div className="flex-1">
-                  <p className="font-medium text-slate-700 dark:text-white">{user.full_name}</p>
-                  <p className="text-slate-700 dark:text-gray-400">@{user.username}</p>
+                  <p className="font-medium text-slate-700 dark:text-white">
+                    {user.full_name}
+                  </p>
+                  <p className="text-slate-700 dark:text-gray-400">
+                    @{user.username}
+                  </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     @{user.bio.slice(0, 30)}...
                   </p>
@@ -145,7 +153,7 @@ const Connections = () => {
                         onClick={() => navigate(`/profile/${user._id}`)}
                         className="w-full p-2 text-sm rounded bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 active:scale-95 transition text-white cursor-pointer "
                       >
-                        View Profile
+                        {t("View Profile")}
                       </button>
                     }
                     {currentTab === "Following" && (
@@ -153,7 +161,7 @@ const Connections = () => {
                         onClick={() => handleUnfollow(user._id)}
                         className="w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200 text-black active:scale-95 transition cursor-pointer"
                       >
-                        Unfollow
+                        {t("Unfollow")}
                       </button>
                     )}
                     {currentTab === "Pending" && (
@@ -161,7 +169,7 @@ const Connections = () => {
                         onClick={() => acceptConnection(user._id)}
                         className="w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200 text-black active:scale-95 transition cursor-pointer"
                       >
-                        Accept
+                        {t("Accept")}
                       </button>
                     )}
                     {currentTab === "Connections" && (
@@ -170,7 +178,7 @@ const Connections = () => {
                         className="w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200 text-slate-800 active:scale-95 transition cursor-pointer flex items-center justify-center gap-1"
                       >
                         <MessageSquare className="w-4 h-4" />
-                        Message
+                        {t("Message")}
                       </button>
                     )}
                   </div>

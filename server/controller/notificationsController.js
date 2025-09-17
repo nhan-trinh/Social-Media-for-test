@@ -4,7 +4,7 @@ import User from "../models/User.js";
 export const getNotifications = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const { page = 1, limit = 20 } = req.query;
+    const { page = 1, limit = 5 } = req.query;
 
     const notifications = await Notification.find({ user: userId })
       .populate("from_user", "full_name username profile_picture")

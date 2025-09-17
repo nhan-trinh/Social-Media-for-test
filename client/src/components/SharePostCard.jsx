@@ -23,12 +23,13 @@ import SharePostModal from "./SharePostModal";
 import DeleteShareModal from "./DeleteShareModal";
 import CommentShareModel from "./CommentShareModal";
 import EditShareModal from "./EditShareModal";
+import { useTranslation } from "react-i18next";
 
 const SharePostCard = ({
   post, // đây là document Share
   onPostUpdated,
   onPostDeleted,
-  onPostVisibilityChanged
+  onPostVisibilityChanged,
 }) => {
   const [likes, setLikes] = useState(post.likes_count || []);
   const [shareCount, setShareCount] = useState(post.share_count || 0);
@@ -46,6 +47,7 @@ const SharePostCard = ({
   const currentUser = useSelector((state) => state.user.value);
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Kiểm tra nếu shared_post bị xóa
   const isOriginalPostDeleted =
@@ -86,9 +88,9 @@ const SharePostCard = ({
       const savedCount = sessionStorage.getItem(`commentCount_${post._id}`);
       if (savedCount !== null) {
         const parsedCount = parseInt(savedCount);
-        console.log(
-          `Restored comment count from storage: ${parsedCount} for post ${post._id}`
-        );
+        // console.log(
+        //   `Restored comment count from storage: ${parsedCount} for post ${post._id}`
+        // );
         return parsedCount;
       }
     } catch (error) {
@@ -161,12 +163,11 @@ const SharePostCard = ({
     }
   };
 
-
-    const handleHidePost = () => {
+  const handleHidePost = () => {
     setIsHidden(true);
     setIsDropdownOpen(false);
     toast.success("Post hidden");
-    
+
     // Notify parent component
     if (onPostVisibilityChanged) {
       onPostVisibilityChanged(post._id, true);
@@ -176,13 +177,12 @@ const SharePostCard = ({
   const handleUnhidePost = () => {
     setIsHidden(false);
     toast.success("Post restored");
-    
+
     // Notify parent component
     if (onPostVisibilityChanged) {
       onPostVisibilityChanged(post._id, false);
     }
   };
-
 
   const handleDeletePost = () => {
     setIsDeleteModalOpen(true);
@@ -225,18 +225,19 @@ const SharePostCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <EyeOff className="w-5 h-5 text-gray-500 dark:text-gray-300" />
-            <span className="text-gray-600 text-sm">Post hidden</span>
+            <span className="text-gray-600 text-sm">{t("Post hidden")}</span>
           </div>
           <button
             onClick={handleUnhidePost}
             className="flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
           >
             <Undo2 className="w-4 h-4" />
-            Undo
+            {t("Undo")}
           </button>
         </div>
         <div className="text-gray-500 dark:text-gray-400 text-sm">
-          Post by @{post.user.username} • {moment(post.createdAt).fromNow()}
+          {t("Post by")} @{post.user.username} •{" "}
+          {moment(post.createdAt).fromNow()}
         </div>
       </div>
     );
@@ -263,7 +264,7 @@ const SharePostCard = ({
               <BadgeCheck className="w-4 h-4 text-blue-500" />
             </div>
             <div className="text-gray-500 dark:text-gray-400 text-sm">
-              @{post.user.username} has shared{" "}
+              @{post.user.username} {t("has shared")}{" "}
               {moment(post.createdAt).fromNow()}
             </div>
           </div>
@@ -285,14 +286,14 @@ const SharePostCard = ({
                     className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
                   >
                     <Edit className="w-4 h-4" />
-                    Edit Post
+                    {t("Edit Post")}
                   </button>
                   <button
                     onClick={handleDeletePost}
                     className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-red-600 flex items-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
-                    Delete Post
+                    {t("Delete Post")}
                   </button>
                 </>
               ) : (
@@ -301,7 +302,7 @@ const SharePostCard = ({
                   className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
                 >
                   <EyeOff className="w-4 h-4" />
-                  Hide Post
+                  {t("Hide Post")}
                 </button>
               )}
             </div>
@@ -395,7 +396,7 @@ const SharePostCard = ({
                       className={`w-full object-cover rounded-lg ${
                         post.shared_post.image_urls.length === 1
                           ? "h-auto max-h-64"
-                          : "h-24"
+                          : "h-48"
                       }`}
                     />
                   ) : (
@@ -404,7 +405,7 @@ const SharePostCard = ({
                       key={index}
                       className={`w-full object-cover rounded-lg ${
                         post.shared_post.image_urls.length === 1
-                          ? "h-auto max-h-64"
+                          ? "h-auto max-h"
                           : "h-24"
                       }`}
                       alt=""
