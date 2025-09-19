@@ -344,38 +344,6 @@ const SharePostCard = ({
         >
           <div className="p-3">
             {/* Header người đăng bài gốc */}
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/profile/` + post.shared_post.user._id);
-              }}
-              className="flex items-center gap-3 cursor-pointer"
-            >
-              <img
-                src={post.shared_post.user.profile_picture}
-                alt=""
-                className="w-8 h-8 rounded-full shadow"
-              />
-              <div>
-                <div className="flex items-center space-x-1">
-                  <span className="text-sm font-medium">
-                    {post.shared_post.user.full_name}
-                  </span>
-                  <BadgeCheck className="w-4 h-4 text-blue-500" />
-                </div>
-                <div className="text-gray-500 text-xs">
-                  @{post.shared_post.user.username} has posted{" "}
-                  {moment(post.shared_post.createdAt).fromNow()}
-                </div>
-              </div>
-            </div>
-
-            {/* Nội dung bài gốc */}
-            {post.shared_post.content && (
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 mt-3 whitespace-pre-line">
-                {post.shared_post.content}
-              </p>
-            )}
 
             {/* Media bài gốc */}
             {post.shared_post.image_urls?.length > 0 && (
@@ -427,6 +395,38 @@ const SharePostCard = ({
                   </div>
                 )}
               </div>
+            )}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/profile/` + post.shared_post.user._id);
+              }}
+              className="flex items-center gap-3 cursor-pointer mt-3"
+            >
+              <img
+                src={post.shared_post.user.profile_picture}
+                alt=""
+                className="w-8 h-8 rounded-full shadow"
+              />
+              <div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-sm font-medium">
+                    {post.shared_post.user.full_name}
+                  </span>
+                  <BadgeCheck className="w-4 h-4 text-blue-500" />
+                </div>
+                <div className="text-gray-500 text-xs">
+                  @{post.shared_post.user.username} has posted{" "}
+                  {moment(post.shared_post.createdAt).fromNow()}
+                </div>
+              </div>
+            </div>
+
+            {/* Nội dung bài gốc */}
+            {post.shared_post.content && (
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 mt-3 whitespace-pre-line">
+                {post.shared_post.content}
+              </p>
             )}
           </div>
         </div>

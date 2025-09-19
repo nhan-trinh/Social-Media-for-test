@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { menuItemsData } from "../assets/assets";
 import { NavLink } from "react-router-dom";
 import { useNotification } from "../contexts/NotificationContext";
@@ -6,21 +6,7 @@ import { useTranslation } from "react-i18next";
 
 const Menuitems = ({ setSideBarOpen }) => {
   const { t } = useTranslation();
-  const { unreadCount, fetchNotifications } = useNotification();
-  const [displayUnreadCount, setDisplayUnreadCount] = useState(() => {
-    const saved = localStorage.getItem("notification_unread_count");
-    return saved ? parseInt(saved, 10) : 0;
-  });
-
-  useEffect(() => {
-    setDisplayUnreadCount(unreadCount);
-  }, [unreadCount]);
-
-  useEffect(() => {
-    if (unreadCount === 0 && displayUnreadCount === 0) {
-      fetchNotifications();
-    }
-  }, []);
+  const { unreadCount } = useNotification();
 
   return (
     <div className="px-6 text-gray-600 dark:text-slate-200 space-y-1 font-medium">
@@ -40,13 +26,12 @@ const Menuitems = ({ setSideBarOpen }) => {
         >
           <div className="relative">
             <Icon className="w-5 h-5" />
-            {to === "/notifications" && displayUnreadCount > 0 && (
+            {to === "/notifications" && unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                {displayUnreadCount > 99 ? "99+" : displayUnreadCount}
+                {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
           </div>
-          {/* dùng i18n key */}
           {t(`menu.${label}`)}
         </NavLink>
       ))}
