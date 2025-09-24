@@ -1,5 +1,5 @@
 import { X, Trash2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
