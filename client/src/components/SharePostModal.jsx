@@ -8,6 +8,8 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll.js";
 import { useTranslation } from "react-i18next";
+import successSound from "../sounds/success.mp3";
+import { useRef } from "react";
 
 const SharePostModal = ({ isOpen, onClose, post }) => {
   const navigate = useNavigate();
@@ -15,7 +17,9 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
   const [isSharing, setIsSharing] = useState(false);
   const { getToken } = useAuth();
   const modalRef = useOutsideClickOrScroll(onClose);
-  const {t} = useTranslation()
+  const { t } = useTranslation();
+
+  const successAudio = useRef(new Audio(successSound));
 
   const handleShare = async () => {
     try {
@@ -27,6 +31,7 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
       );
       if (data.success) {
         navigate("/");
+        successAudio.current.play().catch(() => {});
         toast.success("Post shared!");
         onClose();
       } else {
@@ -42,7 +47,10 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
 
   return (
     <div className="fixed inset-0 z-[110] min-h-screen bg-black/30 backdrop-blur flex items-center justify-center p-4">
-      <div ref={modalRef} className="bg-white rounded-2xl shadow-2xl dark:bg-gray-900 max-w-2xl w-full max-h-[90vh] flex flex-col">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-2xl shadow-2xl dark:bg-gray-900 max-w-2xl w-full max-h-[90vh] flex flex-col"
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">

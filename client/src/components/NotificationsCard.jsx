@@ -32,6 +32,8 @@ const NotificationsCard = ({ notification, onMarkAsRead, onDelete }) => {
         return <FileText className={`${iconClasses} text-orange-500`} />;
       case "new_story":
         return <Image className={`${iconClasses} text-pink-500`} />;
+      case "change_profile":
+        return <Image className={`${iconClasses} text-pink-500`} />;
       default:
         return <Bell className={`${iconClasses} text-gray-500`} />;
     }
@@ -54,6 +56,8 @@ const NotificationsCard = ({ notification, onMarkAsRead, onDelete }) => {
       case "new_post":
         return "bg-orange-50 dark:bg-orange-900/20";
       case "new_story":
+        return "bg-pink-50 dark:bg-pink-900/20";
+      case "change_profile":
         return "bg-pink-50 dark:bg-pink-900/20";
       default:
         return "bg-gray-50 dark:bg-gray-800";

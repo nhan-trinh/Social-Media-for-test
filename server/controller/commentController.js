@@ -87,7 +87,7 @@ export const getPostComments = async (req, res) => {
       parent_comment: null,
       post_type: "post",
     })
-      .populate("user")
+      .populate("user", "-email")
       .sort({ createdAt: -1 });
 
     const commentsWithReplies = await Promise.all(

@@ -2,7 +2,20 @@ import Share from "../models/Share.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
 import Comment from "../models/Comment.js";
-import { handleSharePost, handleLikeShare } from "../services/notificationService.js";
+import {
+  handleSharePost,
+  handleLikeShare,
+} from "../services/notificationService.js";
+
+const sanitizeUserForPost = (user) => {
+  if (!user) return null;
+
+  return {
+    username: user.username,
+    full_name: user.full_name,
+    profile_picture: user.profile_picture || "",
+  };
+};
 
 export const addSharePost = async (req, res) => {
   try {
@@ -59,7 +72,13 @@ export const addSharePost = async (req, res) => {
 
     // Send notification for share
     const io = req.app.get("io");
-    await handleSharePost(io, original_post_id, sharePost._id, userId, originalPost.user);
+    await handleSharePost(
+      io,
+      original_post_id,
+      sharePost._id,
+      userId,
+      originalPost.user
+    );
 
     res.json({
       success: true,
@@ -74,34 +93,52 @@ export const addSharePost = async (req, res) => {
 
 export const getSharedPosts = async (req, res) => {
   try {
+    // Get pagination parameters from query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const totalShares = await Share.countDocuments();
+    const hasMore = page * limit < totalShares;
+
     const shares = await Share.find()
-      .populate("user")
+      .populate("user", "-email")
       .populate({
         path: "shared_post",
         populate: {
           path: "user",
+          select: "-email",
         },
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    const formattedShares = shares.map(share => {
+    const formattedShares = shares.map((share) => {
       // Nếu shared_post bị xóa hoặc không tồn tại
       if (!share.shared_post || share.shared_post_deleted) {
         return {
           ...share.toObject(),
           shared_post: {
             deleted: true,
-            message: share.deleted_message || "Content isn't available right now"
-          }
+            message:
+              share.deleted_message || "Content isn't available right now",
+          },
         };
       }
       return share.toObject();
     });
 
     const postsWithCommentCount = await Promise.all(
-      formattedShares.map(async (share) => { 
-        if (share.comments_count === undefined || share.comments_count === null) {
-          const commentCount = await Comment.countDocuments({ post: share._id });
+      formattedShares.map(async (share) => {
+        if (
+          share.comments_count === undefined ||
+          share.comments_count === null
+        ) {
+          const commentCount = await Comment.countDocuments({
+            post: share._id,
+          });
           await Share.findByIdAndUpdate(share._id, {
             comments_count: commentCount,
           });
@@ -111,7 +148,13 @@ export const getSharedPosts = async (req, res) => {
       })
     );
 
-    res.json({ success: true, shares: postsWithCommentCount });
+    res.json({
+      success: true,
+      shares: postsWithCommentCount,
+      hasMore,
+      totalShares,
+      currentPage: page
+    });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -129,14 +172,14 @@ export const likeSharePost = async (req, res) => {
       share.likes_count = share.likes_count.filter((user) => user !== userId);
       await share.save();
       res.json({ success: true, message: "Post unliked" });
-    } else { 
+    } else {
       share.likes_count.push(userId);
       await share.save();
-      
+
       // Send notification for like
       const io = req.app.get("io");
       await handleLikeShare(io, shareId, userId, share.user);
-      
+
       res.json({ success: true, message: "Post liked" });
     }
   } catch (error) {
@@ -227,21 +270,26 @@ export const getUserShares = async (req, res) => {
       })
       .sort({ createdAt: -1 });
 
-    const formattedShares = shares.map(share => {
+    const formattedShares = shares.map((share) => {
       // Nếu shared_post bị xóa hoặc không tồn tại
       if (!share.shared_post || share.shared_post_deleted) {
         return {
           ...share.toObject(),
           shared_post: {
             deleted: true,
-            message: share.deleted_message || "Content isn't available right now"
-          }
+            message:
+              share.deleted_message || "Content isn't available right now",
+          },
         };
       }
       return share.toObject();
     });
-    
-    res.json({ success: true, shares: formattedShares, count: formattedShares.length });
+
+    res.json({
+      success: true,
+      shares: formattedShares,
+      count: formattedShares.length,
+    });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });

@@ -5,6 +5,7 @@ import api from "../api/axios";
 import toast from "react-hot-toast";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
 import { useTranslation } from "react-i18next";
+import successSound from "../sounds/success.mp3";
 
 const DeleteCommentModal = ({
   isOpen,
@@ -17,6 +18,8 @@ const DeleteCommentModal = ({
   const { getToken } = useAuth();
   const modalRef = useOutsideClickOrScroll(onClose);
   const { t } = useTranslation();
+
+  const successAudio = useRef(new Audio(successSound));
 
   const handleDelete = async () => {
     if (!commentId) {
@@ -34,6 +37,7 @@ const DeleteCommentModal = ({
       );
 
       if (data.success) {
+        successAudio.current.play().catch(() => {});
         toast.success("Comment deleted successfully");
         onClose();
         // Callback để parent component xử lý việc remove comment khỏi UI

@@ -7,6 +7,8 @@ import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import "../css/Uploadfile.css";
 import { useTranslation } from "react-i18next";
+import successSound from "../sounds/success.mp3";
+import { useRef } from "react";
 const CreatePost = () => {
   const navigate = useNavigate();
 
@@ -18,6 +20,7 @@ const CreatePost = () => {
   const user = useSelector((state) => state.user.value);
 
   const { getToken } = useAuth();
+  const successAudio = useRef(new Audio(successSound));
 
   const handleSubmit = async () => {
     if (!images.length && !content) {
@@ -47,6 +50,7 @@ const CreatePost = () => {
       });
 
       if (data.success) {
+        successAudio.current.play().catch(() => {});
         navigate("/");
       } else {
         console.log(data.message);

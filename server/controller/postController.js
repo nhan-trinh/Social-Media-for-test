@@ -72,7 +72,18 @@ export const addPost = async (req, res) => {
 export const getFeedPosts = async (req, res) => {
   try {
     // Lấy tất cả bài viết, không lọc theo userId
-    const posts = await Post.find().populate("user").sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.find()
+      .populate("user", "-email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Post.countDocuments();
+    const hasMore = page * limit < total;
 
     // Đảm bảo comments_count được đồng bộ cho mỗi post
     const postsWithCommentCount = await Promise.all(
@@ -88,7 +99,13 @@ export const getFeedPosts = async (req, res) => {
       })
     );
 
-    res.json({ success: true, posts: postsWithCommentCount });
+    res.json({ 
+      success: true, 
+      posts: postsWithCommentCount,
+      hasMore,
+      totalPosts: total,
+      currentPage: page
+    });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -199,76 +216,3 @@ export const updatePost = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
-// export const sharePost = async (req, res) => {
-//   try {
-//     const { userId } = req.auth();
-//     const {postId, content} = req.body;
-
-//     const originalPost = await Post.findById(postId).populate("user")
-
-//     if(!originalPost) {
-//       return res.json({ success: false, message: "Post not found" });
-//     }
-
-//     if(originalPost.shared_post) {
-//       return res.json({success: false,
-//         message: "You cannot share a shared post"
-//       })
-//     }
-
-//     const existingShare = await Post.findOne({
-//       user: userId,
-//       share_post: originalPost._id
-//     })
-
-//     if(existingShare) {
-//       return res.json({success: false,
-//         message: "You have already shared this post"
-//       })
-//     }
-
-//     const sharedPost = await Post.create({
-//       user: userId,
-//       content: content || "", // User comment khi share
-//       post_type: originalPost.post_type,
-//       shared_post: postId,
-//       is_original: false,
-//       comments_count: 0,
-//       share_count: 0,
-//     });
-
-//         await Post.findByIdAndUpdate(postId, {
-//       $inc: { share_count: 1 }
-//     });
-
-//     // Populate user data cho response
-//     await sharedPost.populate("user");
-
-//     res.json({
-//       success: true,
-//       message: "Post shared successfully",
-//       post: sharedPost
-//     });
-
-//   } catch (error) {
-//     console.log(error);
-//     res.json({ success: false, message: error.message });
-//   }
-// }
-
-// export const getSharedPosts = async (req, res) => {
-//   try {
-//     const {postId} = req.params;
-
-//     const sharedPosts = await Post.find({shared_post: postId}).populate("user").sort({ createdAt: -1 });
-//       res.json({
-//       success: true,
-//       shares,
-//       count: shares.length
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.json({ success: false, message: error.message });
-//   }
-// }

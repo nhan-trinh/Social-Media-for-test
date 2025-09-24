@@ -31,7 +31,11 @@ await connectDB();
 
 app.use(express.json());
 app.use(cors());
-app.use(clerkMiddleware());
+app.use(
+  clerkMiddleware({
+    clockTolerance: 60000, // 60 giây tolerance
+  })
+);
 
 // Static cache headers for client build (if served here in prod)
 const __filename = fileURLToPath(import.meta.url);
@@ -55,9 +59,9 @@ app.use("/api/user", userRouter);
 app.use("/api/post", postRouter);
 app.use("/api/story", storyRouter);
 app.use("/api/message", messageRouter);
-app.use("/api/comment", commentRouter )
-app.use("/api/share", shareRouter)
-app.use("/api/notification", notificationRouter)
+app.use("/api/comment", commentRouter);
+app.use("/api/share", shareRouter);
+app.use("/api/notification", notificationRouter);
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {

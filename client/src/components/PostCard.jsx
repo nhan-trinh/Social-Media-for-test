@@ -21,6 +21,8 @@ import DeleteModal from "../components/DeleteModal";
 import EditModal from "../components/EditModalComment";
 import SharePostModal from "./SharePostModal";
 import { useTranslation } from "react-i18next";
+import likeSound from "../sounds/like.mp3";
+import commentSound from "../sounds/comment.mp3";
 
 const PostCard = ({
   post,
@@ -117,6 +119,9 @@ const PostCard = ({
     };
   }, []);
 
+  const likeAudio = useRef(new Audio(likeSound));
+  const commentAudio = useRef(new Audio(commentSound));
+
   const handleLike = async () => {
     try {
       const { data } = await api.post(
@@ -131,6 +136,7 @@ const PostCard = ({
 
       if (data.success) {
         toast.success(data.message);
+        likeAudio.current.play().catch(() => {});
         setLikes((prev) => {
           if (prev.includes(currentUser._id)) {
             return prev.filter((id) => id !== currentUser._id);
@@ -384,7 +390,10 @@ const PostCard = ({
           </div>
           <div
             className="flex items-center gap-1 cursor-pointer hover:text-indigo-600"
-            onClick={() => setIsCommentModalOpen(true)}
+            onClick={() => {
+              commentAudio.current.play().catch(() => {});
+              setIsCommentModalOpen(true);
+            }}
           >
             <MessageCircle className="w-4 h-4" />
             <span>{commentsCount}</span>

@@ -8,7 +8,7 @@ import {
   Reply,
   ImageIcon,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import moment from "moment";
 import api from "../api/axios";
 import { useAuth } from "@clerk/clerk-react";
@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import DeleteCommentModal from "./DeleteCommentModal";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
+import closeSound from "../sounds/close.mp3";
 
 const CommentModal = ({
   post,
@@ -322,6 +323,8 @@ const CommentModal = ({
     setReplyContent(`@${username} `);
   };
 
+  let closeAudio = useRef(new Audio(closeSound));
+
   // Early return sau khi tất cả hooks đã được gọi
   if (!isOpen) return null;
 
@@ -372,7 +375,10 @@ const CommentModal = ({
                 {t("Comments")}
               </h3>
               <button
-                onClick={onClose}
+                onClick={() => {
+                  closeAudio.current.play().catch(() => {});
+                  onClose();
+                }}
                 className="p-2 hover:bg-gray-100 dark:bg-gray-500 rounded-full transition"
               >
                 <X className="w-5 h-5" />

@@ -11,7 +11,7 @@ import { handleFollow } from "../services/notificationService.js";
 export const getUserData = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-email -password -__v");
     if (!user) {
       return res.json({ success: false, message: "User not found" });
     }
@@ -85,7 +85,7 @@ export const updateUserData = async (req, res) => {
 
     const user = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
-    });
+    }).select("-email -password -__v");
 
     res.json({ success: true, user, message: "Profile Updated successfully" });
   } catch (error) {
@@ -102,12 +102,12 @@ export const discoverUsers = async (req, res) => {
     const allUsers = await User.find({
       $or: [
         { username: new RegExp(input, "i") },
-        { email: new RegExp(input, "i") },
         { full_name: new RegExp(input, "i") },
         { location: new RegExp(input, "i") },
       ],
-    });
-    const filteredUser = allUsers.filter((user) => user._id !== userId);
+    }).select("-email -password -__v");
+    
+    const filteredUser = allUsers.filter((user) => user._id.toString() !== userId);
     res.json({ success: true, users: filteredUser });
   } catch (error) {
     console.log(error);
@@ -153,11 +153,11 @@ export const unfollowUser = async (req, res) => {
     const { id } = req.body;
 
     const user = await User.findById(userId);
-    user.following = user.following.filter((user) => user !== id);
+    user.following = user.following.filter((user) => user.toString() !== id);
     await user.save();
 
     const toUser = await User.findById(id);
-    toUser.followers = toUser.followers.filter((user) => user !== userId);
+    toUser.followers = toUser.followers.filter((user) => user.toString() !== userId);
     await toUser.save();
 
     res.json({
@@ -227,9 +227,20 @@ export const sendConnectionRequest = async (req, res) => {
 export const getUserConnection = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const user = await User.findById(userId).populate(
-      "connections followers following"
-    );
+    const user = await User.findById(userId)
+      .populate({
+        path: "connections",
+        select: "-email -password -__v"
+      })
+      .populate({
+        path: "followers", 
+        select: "-email -password -__v"
+      })
+      .populate({
+        path: "following",
+        select: "-email -password -__v"
+      })
+      .select("-email -password -__v");
 
     if (!user) {
       return res
@@ -242,9 +253,10 @@ export const getUserConnection = async (req, res) => {
     const following = user.following;
 
     const pendingConnections = (
-      await Connection.find({ to_user_id: userId, status: "pending" }).populate(
-        "from_user_id"
-      )
+      await Connection.find({ to_user_id: userId, status: "pending" }).populate({
+        path: "from_user_id",
+        select: "-email -password -__v"
+      })
     ).map((connection) => connection.from_user_id);
 
     res.json({
@@ -295,19 +307,31 @@ export const accepteConnectionRequest = async (req, res) => {
 export const getUserProfiles = async (req, res) => {
   try {
     const { profileId } = req.body;
-    const profile = await User.findById(profileId);
+    const profile = await User.findById(profileId).select("-email -password -__v");
 
     if (!profile) {
       return res.json({ success: true, message: "Profile not found" });
     }
-    const posts = await Post.find({ user: profileId }).populate("user");
+    
+    const posts = await Post.find({ user: profileId }).populate({
+      path: "user",
+      select: "-email -password -__v"
+    });
+    
     const shares = await Share.find({ user: profileId })
-      .populate("user")
+      .populate({
+        path: "user",
+        select: "-email -password -__v"
+      })
       .populate({
         path: "shared_post",
-        populate: { path: "user" },
+        populate: { 
+          path: "user",
+          select: "-email -password -__v"
+        },
       })
       .sort({ createdAt: -1 });
+      
     res.json({ success: true, profile, posts, shares });
   } catch (error) {
     console.log(error);

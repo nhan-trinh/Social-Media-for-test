@@ -16,7 +16,8 @@ const notificationSchema = new mongoose.Schema(
         "share_post",
         "follow",
         "new_post",
-        "new_story"
+        "new_story",
+        "change_profile"
       ],
       required: true,
     },
@@ -25,8 +26,9 @@ const notificationSchema = new mongoose.Schema(
     share: { type: mongoose.Schema.Types.ObjectId, ref: "Share" },
     story: { type: mongoose.Schema.Types.ObjectId, ref: "Story" },
     message: { type: String, required: true },
+    profile: {type: String},
     is_read: { type: Boolean, default: false },
-    metadata: { type: mongoose.Schema.Types.Mixed, default: {} }, // Additional data
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
   },
   { timestamps: true, minimize: false }
 );

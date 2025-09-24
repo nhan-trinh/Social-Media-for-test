@@ -1,6 +1,7 @@
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
 import Connections from "../models/Connections.js";
+import { type } from "os";
 
 // Helper function to get user's connections (followers)
 const getUserConnections = async (userId) => {
@@ -231,3 +232,24 @@ export const handleNewStory = async (io, storyId, userId) => {
 
   return notifications;
 };
+
+export const updateProfilePictureAndCoverPhoto = async (io, userId, profilePictureUrl) => { 
+  const fromUser = await User.findById(userId)
+  if(!fromUser) return;
+
+  const followers = await getUserConnections(userId)
+
+  const notifications = []
+  for (const follower of followers) {
+    const notification = await createNotification(io, {
+      user: follower._id,
+      from_user: userId,
+      type: "change_profile",
+      frofile: profilePictureUrl,
+      message: `${fromUser.full_name} changed profile picture`,
+      metadata: {profilePictureUrl }
+    })
+    if(notification) notifications.push(notification)
+  }
+  return notifications;
+}

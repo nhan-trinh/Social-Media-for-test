@@ -4,11 +4,15 @@ import { useAuth } from "@clerk/clerk-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import successSound from "../sounds/success.mp3";
+import { useRef } from "react";
 
 const DeleteShareModal = ({ isOpen, onClose, post, onPostDeleted }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { getToken } = useAuth();
   const { t } = useTranslation();
+
+  const successAudio = useRef(new Audio(successSound));
 
   const handleDelete = async () => {
     try {
@@ -21,6 +25,7 @@ const DeleteShareModal = ({ isOpen, onClose, post, onPostDeleted }) => {
       );
 
       if (data.success) {
+        successAudio.current.play().catch(() => {});
         toast.success("Post deleted successfully");
         onClose();
         // Callback để parent component xử lý việc remove post khỏi UI

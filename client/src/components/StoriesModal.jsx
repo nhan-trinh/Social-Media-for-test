@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 import api from "../api/axios";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
 import { useTranslation } from "react-i18next";
+import successSound from "../sounds/success.mp3";
+import { useRef } from "react";
 
 const StoriesModal = ({ setShowModal, fetchStories }) => {
   const bgColor = [
@@ -23,7 +25,7 @@ const StoriesModal = ({ setShowModal, fetchStories }) => {
   const [media, setMedia] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const modalRef = useOutsideClickOrScroll(setShowModal);
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   const { getToken } = useAuth();
 
@@ -65,6 +67,8 @@ const StoriesModal = ({ setShowModal, fetchStories }) => {
     }
   };
 
+  const successAudio = useRef(new Audio(successSound));
+
   const handleCreateStory = async () => {
     const media_type =
       mode === "media"
@@ -91,6 +95,7 @@ const StoriesModal = ({ setShowModal, fetchStories }) => {
 
       if (data.success) {
         setShowModal(false);
+        successAudio.current.play().catch(() => {});
         toast.success("Story created successfully");
         fetchStories();
       } else {
