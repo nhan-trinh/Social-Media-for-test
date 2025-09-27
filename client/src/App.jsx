@@ -23,6 +23,8 @@ const NotificationsFeed = lazy(() => import("./pages/NotificationsFeed"));
 const CommentModal = lazy(() => import("./components/CommentModal"));
 import { SocketProvider } from "./contexts/SocketContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import notificationSound from "../src/sounds/notification.mp3";
+import useSound from "./hooks/useSound.js";
 
 const App = () => {
   const { user } = useUser();
@@ -33,8 +35,10 @@ const App = () => {
   const [retryFetchUser, setRetryFetchUser] = useState(false);
   const location = useLocation();
 
-const visiblePath = ["/setting"];
-const shouldShowDarkModeToggle = user && visiblePath.includes(location.pathname);
+  const visiblePath = ["/setting"];
+  const shouldShowDarkModeToggle =
+    user && visiblePath.includes(location.pathname);
+  const notificationAudio = useSound(notificationSound);
 
   // Lấy thông tin user + connections khi user thay đổi
   useEffect(() => {
@@ -58,7 +62,7 @@ const shouldShowDarkModeToggle = user && visiblePath.includes(location.pathname)
     pathNameRef.current = pathname;
   }, [pathname]);
 
-  // Kết nối SSE để nhận tin nhắn real-time
+
   useEffect(() => {
     if (!user?.id) return;
 
@@ -83,7 +87,6 @@ const shouldShowDarkModeToggle = user && visiblePath.includes(location.pathname)
             console.log("Raw SSE data:", event.data);
             const response = JSON.parse(event.data);
 
-            // Xử lý tin nhắn mới
             if (response.type === "new_message" && response.data) {
               const message = response.data;
               console.log("New message received:", message);
@@ -91,15 +94,19 @@ const shouldShowDarkModeToggle = user && visiblePath.includes(location.pathname)
               // Thêm tin nhắn vào store
               dispatch(addMessage(message));
 
-              // Lấy senderId
               const senderId =
                 typeof message.from_user_id === "object"
                   ? message.from_user_id._id
                   : message.from_user_id;
 
-              // Hiện toast nếu không ở trong chat với người gửi
               if (pathNameRef.current !== `/messages/${senderId}`) {
-                // Sử dụng custom notification component
+                notificationAudio();
+                // const audio = successAudio.current;
+                // audio.pause();
+                // audio.currentTime = 0;
+                // audio
+                //   .play()
+                //   .catch((err) => console.error("Audio blocked:", err));
                 toast.custom((t) => <Notifications t={t} message={message} />, {
                   duration: 5000,
                   position: "bottom-right",

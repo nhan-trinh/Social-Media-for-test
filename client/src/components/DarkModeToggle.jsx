@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "../css/Toggle.css"
+import toggleOnSound from "../sounds/toggle.mp3"
+import toggleOffSound from "../sounds/toggle.mp3"
 
 const DarkModeToggle = () => {
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem("theme") === "dark"
   );
+
+  const toggleOnAudio = useRef(new Audio(toggleOnSound));
+  const toggleOffAudio = useRef(new Audio(toggleOffSound));
 
   useEffect(() => {
     const root = document.documentElement;
@@ -17,7 +22,21 @@ const DarkModeToggle = () => {
     }
   }, [isDarkMode]);
 
-  const toggle = () => setIsDarkMode((p) => !p);
+  const toggle = () => {
+    setIsDarkMode((prev) => {
+      const newMode = !prev;
+      
+      if (newMode) {
+        toggleOnAudio.current.currentTime = 0; 
+        toggleOnAudio.current.play().catch(console.error);
+      } else {
+        toggleOffAudio.current.currentTime = 0; 
+        toggleOffAudio.current.play().catch(console.error);
+      }
+      
+      return newMode;
+    });
+  };
 
   return (
     <div className="fixed z-50 bottom-5 right-5 select-none">
@@ -45,8 +64,6 @@ const DarkModeToggle = () => {
             </div>
           </div>
         </div>
-
-      
       </label>
     </div>
   );

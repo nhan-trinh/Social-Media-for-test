@@ -41,6 +41,7 @@ app.use(
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const clientDist = path.join(__dirname, "../client/dist");
+
 app.use(
   express.static(clientDist, {
     maxAge: "365d",
@@ -54,6 +55,7 @@ app.use(
 );
 
 app.get("/", (req, res) => res.send("Server is running"));
+
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/user", userRouter);
 app.use("/api/post", postRouter);
@@ -73,6 +75,24 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} joined their room`);
   });
 
+  // Handle typing events - send to the recipient
+  socket.on('typing', (data) => {
+    // console.log(`User ${data.user.id} (${data.user.username}) is typing to user ${data.userId}`);
+    socket.to(`user_${data.userId}`).emit('typing', data.user);
+  });
+
+  // Handle stopped typing events - send to the recipient
+  socket.on('stopped-typing', (data) => {
+    // console.log(`User ${data.user.id} (${data.user.username}) stopped typing to user ${data.userId}`);
+    socket.to(`user_${data.userId}`).emit('stopped-typing', data.user);
+  });
+
+  // Handle real-time message events (optional - for instant message delivery)
+  socket.on('new_message', (data) => {
+    console.log('New message:', data);
+    socket.to(`user_${data.to_user_id}`).emit('message_received', data);
+  });
+
   // Handle disconnect
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
@@ -83,5 +103,4 @@ io.on("connection", (socket) => {
 app.set("io", io);
 
 const PORT = process.env.PORT || 4000;
-
 server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

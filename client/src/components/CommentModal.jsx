@@ -17,7 +17,6 @@ import { useNavigate } from "react-router-dom";
 import DeleteCommentModal from "./DeleteCommentModal";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import closeSound from "../sounds/close.mp3";
 
 const CommentModal = ({
   post,
@@ -323,7 +322,7 @@ const CommentModal = ({
     setReplyContent(`@${username} `);
   };
 
-  let closeAudio = useRef(new Audio(closeSound));
+
 
   // Early return sau khi tất cả hooks đã được gọi
   if (!isOpen) return null;
@@ -376,7 +375,6 @@ const CommentModal = ({
               </h3>
               <button
                 onClick={() => {
-                  closeAudio.current.play().catch(() => {});
                   onClose();
                 }}
                 className="p-2 hover:bg-gray-100 dark:bg-gray-500 rounded-full transition"

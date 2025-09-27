@@ -1,11 +1,12 @@
 import { X, Edit, BadgeCheck } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import moment from "moment";
 import { useAuth } from "@clerk/clerk-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
 import { useTranslation } from "react-i18next";
+import successSound from "../sounds/success.mp3"
 
 const EditModal = ({ isOpen, onClose, post, onPostUpdated }) => {
   const [content, setContent] = useState("");
@@ -20,6 +21,8 @@ const EditModal = ({ isOpen, onClose, post, onPostUpdated }) => {
       setContent(post.content);
     }
   }, [isOpen, post.content]);
+
+  const successAudio = useRef(new Audio(successSound));
 
   const handleUpdate = async () => {
     if (!content.trim()) {
@@ -40,6 +43,7 @@ const EditModal = ({ isOpen, onClose, post, onPostUpdated }) => {
       );
 
       if (data.success) {
+        successAudio.current.play().catch(() => {});
         toast.success("Post updated successfully");
         onClose();
         // Callback để parent component cập nhật UI

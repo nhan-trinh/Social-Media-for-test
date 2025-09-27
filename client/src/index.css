@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
+@import "flag-icons/css/flag-icons.min.css";
 /* Ensure native UI respects dark mode */
 :root { color-scheme: light dark; }
 
