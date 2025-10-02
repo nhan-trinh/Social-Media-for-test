@@ -31,9 +31,7 @@ const PostCard = ({
   onPostVisibilityChanged,
   onPostShared,
 }) => {
-  // Sử dụng local state cho content để reflect thay đổi ngay lập tức
   const [currentContent, setCurrentContent] = useState(post.content);
-
   const postWithHashtags = currentContent.replace(
     /(#\w+)/g,
     '<span class="text-indigo-600">$1</span>'
@@ -49,26 +47,19 @@ const PostCard = ({
   const dropdownRef = useRef(null);
   const { t } = useTranslation();
 
-  // Sync currentContent khi post.content thay đổi từ props
   useEffect(() => {
     setCurrentContent(post.content);
   }, [post.content]);
 
-  // Sync shareCount khi post.share_count thay đổi từ props
   useEffect(() => {
     setShareCount(post.share_count || 0);
   }, [post.share_count]);
 
-  // Khởi tạo commentsCount với giá trị từ sessionStorage nếu có
   const getInitialCommentCount = () => {
     try {
       const savedCount = sessionStorage.getItem(`commentCount_${post._id}`);
       if (savedCount !== null) {
-        const parsedCount = parseInt(savedCount);
-        // console.log(
-        //   `Restored comment count from storage: ${parsedCount} for post ${post._id}`
-        // );
-        return parsedCount;
+        return parseInt(savedCount);
       }
     } catch (error) {
       console.error("Error reading from sessionStorage:", error);
@@ -77,15 +68,12 @@ const PostCard = ({
   };
 
   const [commentsCount, setCommentsCount] = useState(getInitialCommentCount);
-
   const currentUser = useSelector((state) => state.user.value);
   const { getToken } = useAuth();
   const navigate = useNavigate();
 
-  // Sync commentsCount khi post.comments_count thay đổi (từ props)
   useEffect(() => {
     if (post.comments_count !== undefined && post.comments_count !== null) {
-      // Chỉ cập nhật nếu không có giá trị trong sessionStorage
       const savedCount = sessionStorage.getItem(`commentCount_${post._id}`);
       if (savedCount === null) {
         setCommentsCount(post.comments_count);
@@ -93,7 +81,6 @@ const PostCard = ({
     }
   }, [post.comments_count, post._id]);
 
-  // Lưu comment count vào sessionStorage mỗi khi thay đổi
   useEffect(() => {
     try {
       sessionStorage.setItem(
@@ -104,20 +91,6 @@ const PostCard = ({
       console.error("Error saving to sessionStorage:", error);
     }
   }, [commentsCount, post._id]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const likeAudio = useRef(new Audio(likeSound));
   const commentAudio = useRef(new Audio(commentSound));
@@ -152,21 +125,12 @@ const PostCard = ({
     }
   };
 
-  // Cập nhật hàm handleCommentUpdate để nhận số lượng thay đổi chính xác
   const handleCommentUpdate = (change = 1) => {
-    setCommentsCount((prev) => {
-      const newCount = prev + change;
-      console.log(`Comment count update: ${prev} + ${change} = ${newCount}`);
-      return Math.max(0, newCount);
-    });
+    setCommentsCount((prev) => Math.max(0, prev + change));
   };
 
-  // Hàm sync để cập nhật từ CommentModal
   const handleCommentsCountSync = (newCount) => {
-    console.log(`Syncing comment count to: ${newCount} for post ${post._id}`);
     setCommentsCount(Math.max(0, newCount));
-
-    // Cập nhật sessionStorage
     try {
       sessionStorage.setItem(
         `commentCount_${post._id}`,
@@ -181,8 +145,6 @@ const PostCard = ({
     setIsHidden(true);
     setIsDropdownOpen(false);
     toast.success("Post hidden");
-
-    // Notify parent component
     if (onPostVisibilityChanged) {
       onPostVisibilityChanged(post._id, true);
     }
@@ -191,8 +153,6 @@ const PostCard = ({
   const handleUnhidePost = () => {
     setIsHidden(false);
     toast.success("Post restored");
-
-    // Notify parent component
     if (onPostVisibilityChanged) {
       onPostVisibilityChanged(post._id, false);
     }
@@ -208,30 +168,22 @@ const PostCard = ({
     setIsDropdownOpen(false);
   };
 
-  // Handler khi post được update thành công
   const handlePostUpdateSuccess = (postId, newContent) => {
     setCurrentContent(newContent);
-
-    // Notify parent component to update the main feed
     if (onPostUpdated) {
       onPostUpdated(postId, newContent);
     }
   };
 
-  // Handler khi post bị delete thành công
   const handlePostDeleteSuccess = (postId) => {
-    // Notify parent component to remove post from feed
     if (onPostDeleted) {
       onPostDeleted(postId);
     }
   };
 
-  // Handler khi post được share thành công
   const handleShareSuccess = () => {
     setShareCount((prev) => prev + 1);
     setIsSharingModalOpen(false);
-
-    // Notify parent component
     if (onPostShared) {
       onPostShared(post._id);
     }
@@ -239,7 +191,124 @@ const PostCard = ({
 
   const isOwner = currentUser._id === post.user._id;
 
-  // Hidden Post Card
+  // Render media item helper
+  const renderMediaItem = (media, index, className) => {
+    const isVideo = /\.(mp4|webm|ogg)$/i.test(media);
+    
+    return isVideo ? (
+      <video
+        key={index}
+        src={media}
+        controls
+        preload="metadata"
+        className={className}
+      />
+    ) : (
+      <img
+        src={media}
+        key={index}
+        className={className}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    );
+  };
+
+  // Smart grid layout based on media count
+  const renderMediaGrid = () => {
+    const mediaCount = post.image_urls.length;
+    
+    if (mediaCount === 0) return null;
+
+    // Single media - full width
+    if (mediaCount === 1) {
+      return (
+        <div className="w-full">
+          {renderMediaItem(
+            post.image_urls[0],
+            0,
+            "w-full h-auto max-h object-cover rounded-lg"
+          )}
+        </div>
+      );
+    }
+
+    // Two media - side by side
+    if (mediaCount === 2) {
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          {post.image_urls.map((media, index) =>
+            renderMediaItem(media, index, "w-full h-90 object-cover rounded-lg")
+          )}
+        </div>
+      );
+    }
+
+    // Three media - first large on left, two stacked on right
+    if (mediaCount === 3) {
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          <div className="row-span-2">
+            {renderMediaItem(
+              post.image_urls[0],
+              0,
+              "w-full h-full object-cover rounded-lg"
+            )}
+          </div>
+          <div className="space-y-2">
+            {renderMediaItem(
+              post.image_urls[1],
+              1,
+              "w-full h-[calc(50%-4px)] object-cover rounded-lg"
+            )}
+            {renderMediaItem(
+              post.image_urls[2],
+              2,
+              "w-full h-[calc(50%-4px)] object-cover rounded-lg"
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Four media - 2x2 grid
+    if (mediaCount === 4) {
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          {post.image_urls.map((media, index) =>
+            renderMediaItem(media, index, "w-full h-48 object-cover rounded-lg")
+          )}
+        </div>
+      );
+    }
+
+    // Five or more media - 2x2 grid with "+X more" overlay on last image
+    if (mediaCount >= 5) {
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          {post.image_urls.slice(0, 3).map((media, index) =>
+            renderMediaItem(media, index, "w-full h-48 object-cover rounded-lg")
+          )}
+          <div className="relative">
+            {renderMediaItem(
+              post.image_urls[3],
+              3,
+              "w-full h-48 object-cover rounded-lg"
+            )}
+            {mediaCount > 4 && (
+              <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center rounded-lg cursor-pointer hover:bg-opacity-75 transition">
+                <span className="text-white text-2xl font-bold">
+                  +{mediaCount - 4}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+  };
+
   if (isHidden) {
     return (
       <div className="bg-gray-100 rounded-xl dark:bg-primary-dark shadow p-4 space-y-4 w-full max-w-2xl border-2 border-dashed border-gray-300 dark:border-gray-700">
@@ -295,7 +364,6 @@ const PostCard = ({
             </div>
           </div>
 
-          {/* Dropdown Menu */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -344,39 +412,14 @@ const PostCard = ({
           />
         )}
 
-        <div
-          onClick={() => setIsCommentModalOpen(true)}
-          className="grid grid-cols-2 gap-2 cursor-pointer"
-        >
-          {post.image_urls.map((media, index) => {
-            // Kiểm tra định dạng file để render đúng loại
-            const isVideo = /\.(mp4|webm|ogg)$/i.test(media);
-            return isVideo ? (
-              <video
-                key={index}
-                src={media}
-                controls
-                preload="none"
-                className={`w-full h-48 object-cover rounded-lg ${
-                  post.image_urls.length === 1 && "col-span-2 h-auto"
-                }`}
-              />
-            ) : (
-              <img
-                src={media}
-                key={index}
-                className={`w-full h-48 object-cover rounded-lg ${
-                  post.image_urls.length === 1 && "col-span-2 h-auto"
-                }`}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                width={600}
-                height={384}
-              />
-            );
-          })}
-        </div>
+        {post.image_urls.length > 0 && (
+          <div
+            onClick={() => setIsCommentModalOpen(true)}
+            className="cursor-pointer"
+          >
+            {renderMediaGrid()}
+          </div>
+        )}
 
         <div className="flex items-center gap-4 text-gray-600 dark:text-gray-300 text-sm pt-2 border-t border-gray-300 dark:border-gray-700">
           <div className="flex items-center gap-1">
@@ -408,7 +451,6 @@ const PostCard = ({
         </div>
       </div>
 
-      {/* Comment Modal */}
       <CommentModal
         post={post}
         isOpen={isCommentModalOpen}
@@ -419,7 +461,6 @@ const PostCard = ({
         onCommentsCountSync={handleCommentsCountSync}
       />
 
-      {/* Delete Modal */}
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -427,7 +468,6 @@ const PostCard = ({
         onPostDeleted={handlePostDeleteSuccess}
       />
 
-      {/* Edit Modal */}
       <EditModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}

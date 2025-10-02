@@ -3,6 +3,7 @@ import sample_cover from "./sample_cover.jpg";
 import sample_profile from "./sample_profile.jpg";
 import bgImage from "./bgImage.png";
 import group_users from "./group_users.png";
+import favicon from "./favicon.svg"
 import {
   Bell,
   Home,
@@ -22,6 +23,7 @@ export const assets = {
   bgImage,
   group_users,
   sponsored_img,
+  favicon
 };
 
 export const menuItemsData = [

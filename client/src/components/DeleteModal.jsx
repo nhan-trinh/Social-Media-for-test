@@ -5,8 +5,8 @@ import api from "../api/axios";
 import toast from "react-hot-toast";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
 import { useTranslation } from "react-i18next";
-import successSound from "../sounds/success.mp3";
-import { useRef } from "react";
+// import successSound from "../sounds/success.mp3";
+// import { useRef } from "react";
 
 const DeleteModal = ({ isOpen, onClose, post, onPostDeleted }) => {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -14,7 +14,7 @@ const DeleteModal = ({ isOpen, onClose, post, onPostDeleted }) => {
   const modalRef = useOutsideClickOrScroll(onClose);
   const { t } = useTranslation();
 
-  const successAudio = useRef(new Audio(successSound));
+  // const successAudio = useRef(new Audio(successSound));
 
   const handleDelete = async () => {
     try {
@@ -27,7 +27,7 @@ const DeleteModal = ({ isOpen, onClose, post, onPostDeleted }) => {
       );
 
       if (data.success) {
-        successAudio.current.play().catch(() => {});
+        // successAudio.current.play().catch(() => {});
         toast.success("Post deleted successfully");
         onClose();
         // Callback để parent component xử lý việc remove post khỏi UI

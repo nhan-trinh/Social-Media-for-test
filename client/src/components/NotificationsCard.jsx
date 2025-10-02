@@ -69,7 +69,7 @@ const NotificationsCard = ({ notification, onMarkAsRead, onDelete }) => {
     const notifDate = new Date(date);
     const diffInMinutes = Math.floor((now - notifDate) / (1000 * 60));
 
-    if (diffInMinutes < 1) return "Vừa xong";
+    if (diffInMinutes < 1) return "Just now";
     if (diffInMinutes < 60) return `${diffInMinutes}p`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
     return `${Math.floor(diffInMinutes / 1440)}d`;

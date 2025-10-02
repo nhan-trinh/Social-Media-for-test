@@ -1,133 +1,188 @@
-import fs from 'fs'
-import imagekit from '../configs/imagekit.js';
-import Message from '../models/Message.js';
+import fs from "fs/promises";
+import imagekit from "../configs/imagekit.js";
+import Message from "../models/Message.js";
 
 const connections = {};
 
 export const sseController = (req, res) => {
-    const {userId} = req.params
-    console.log('New client connected:', userId)
+  const { userId } = req.params;
+  console.log("New client connected:", userId);
 
-    // Set CORS headers trước
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
-    // Set SSE headers
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    
-    // Disable buffering
-    res.flushHeaders();
-    
-    connections[userId] = res;
+  // Set CORS headers trước
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-    // Send initial connection message
-    res.write('data: {"type": "connection", "message": "Connected to SSE stream"}\n\n');
+  // Set SSE headers
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
 
-    // Handle client disconnect
-    req.on('close', () => {
-        delete connections[userId];
-        console.log('Client disconnected:', userId);
-    });
+  // Disable buffering
+  res.flushHeaders();
 
-    req.on('aborted', () => {
-        delete connections[userId];
-        console.log('Client aborted connection:', userId);
-    });
-}
+  connections[userId] = res;
+
+  // Send initial connection message
+  res.write(
+    'data: {"type": "connection", "message": "Connected to SSE stream"}\n\n'
+  );
+
+  // Handle client disconnect
+  req.on("close", () => {
+    delete connections[userId];
+    console.log("Client disconnected:", userId);
+  });
+
+  req.on("aborted", () => {
+    delete connections[userId];
+    console.log("Client aborted connection:", userId);
+  });
+};
 
 export const sendMessage = async (req, res) => {
-    try {
-        const {userId} = req.auth()
-        const {to_user_id, text} = req.body;
-        const image = req.file;
-        let media_url = ''
-        let message_type = image ? 'image' : 'text';
+  try {
+    const { userId } = req.auth();
+    const { to_user_id, text } = req.body;
+    const image = req.file;
+    let media_url = "";
+    let message_type = image ? "image" : "text";
 
-        if(message_type === 'image'){
-            const fileBuffer = fs.readFileSync(image.path);
-            const response = await imagekit.upload({
-                file:fileBuffer,
-                fileName: image.originalname,
-            })
+    if (message_type === "image") {
+      const fileBuffer = await fs.readFile(image.path);
+      const response = await imagekit.upload({
+        file: fileBuffer,
+        fileName: image.originalname,
+      });
 
-            media_url = imagekit.url({
-                path: response.filePath,
-                transformation: [
-                    {quality: 'auto'},
-                    {format: 'auto'},
-                    {width: '1280'}
-                ]
-            })
-        }
-        
-        const message = await Message.create({
-            from_user_id: userId,
-            to_user_id,
-            text,
-            message_type,
-            media_url
-        })
-
-        // Populate message với thông tin user
-        const messageWithUserData = await Message.findById(message._id).populate('from_user_id');
-
-        res.json({success: true, message: messageWithUserData})
-
-        // Gửi tin nhắn qua SSE cho người nhận
-        if (connections[to_user_id]) {
-            const sseData = {
-                type: 'new_message',
-                data: messageWithUserData
-            };
-            
-            try {
-                connections[to_user_id].write(`data: ${JSON.stringify(sseData)}\n\n`);
-                console.log('Message sent via SSE to:', to_user_id);
-            } catch (sseError) {
-                console.log('SSE send error:', sseError);
-                delete connections[to_user_id]; // Remove broken connection
-            }
-        } else {
-            console.log('No SSE connection found for user:', to_user_id);
-        }
-
-    } catch (error) {
-        console.log(error);
-        res.json({success: false, message: error.message})
+      media_url = imagekit.url({
+        path: response.filePath,
+        transformation: [
+          { quality: "auto" },
+          { format: "auto" },
+          { width: "1280" },
+        ],
+      });
     }
-}
+
+    const message = await Message.create({
+      from_user_id: userId,
+      to_user_id,
+      text,
+      message_type,
+      media_url,
+    });
+
+    // Populate message với thông tin user
+    const messageWithUserData = await Message.findById(message._id).populate(
+      "from_user_id"
+    );
+
+    res.json({ success: true, message: messageWithUserData });
+
+    // Gửi tin nhắn qua SSE cho người nhận
+    if (connections[to_user_id]) {
+      const sseData = {
+        type: "new_message",
+        data: messageWithUserData,
+      };
+
+      try {
+        connections[to_user_id].write(`data: ${JSON.stringify(sseData)}\n\n`);
+        console.log("Message sent via SSE to:", to_user_id);
+      } catch (sseError) {
+        console.log("SSE send error:", sseError);
+        delete connections[to_user_id]; // Remove broken connection
+      }
+    } else {
+      console.log("No SSE connection found for user:", to_user_id);
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 export const getChatMessages = async (req, res) => {
-    try {
-        const {userId} = req.auth()
-        const {to_user_id} = req.body;
+  try {
+    const { userId } = req.auth();
+    const { to_user_id } = req.body;
 
-        const messages = await Message.find({
-            $or: [
-                {from_user_id: userId, to_user_id},
-                {from_user_id: to_user_id, to_user_id: userId}
-            ]
-        }).sort({createdAt: 1})
+    const messages = await Message.find({
+      $or: [
+        { from_user_id: userId, to_user_id },
+        { from_user_id: to_user_id, to_user_id: userId },
+      ],
+    }).sort({ createdAt: 1 });
 
-        await Message.updateMany({from_user_id: to_user_id, to_user_id: userId}, {seen: true})
+    await Message.updateMany(
+      { from_user_id: to_user_id, to_user_id: userId },
+      { seen: true }
+    );
 
-        res.json({success: true, messages})
-
-    } catch (error) {
-        res.json({success: false, message: error.message})
-    }
-}
+    res.json({ success: true, messages });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 
 export const getUserRececentMessages = async (req, res) => {
-    try {
-        const {userId} = req.auth();
-        const messages = await Message.find({to_user_id: userId}).populate('from_user_id to_user_id').sort({createdAt: -1})
+  try {
+    const { userId } = req.auth();
+    const messages = await Message.find({ to_user_id: userId })
+      .populate("from_user_id to_user_id")
+      .sort({ createdAt: -1 });
 
-        res.json({success: true, messages})
-    } catch (error) {
-        res.json({success: false, message: error.message})
+    res.json({ success: true, messages });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const { messageId } = req.params;
+
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.json({ success: false, message: "Message not found" });
     }
-}
+
+    if (message.from_user_id.toString() !== userId) {
+      return res.json({
+        success: false,
+        message: "Not authorized to delete this message",
+      });
+    }
+
+    const receiverId = message.to_user_id.toString();
+
+    await Message.findByIdAndDelete(messageId);
+
+    if (connections[receiverId]) {
+      const sseData = {
+        type: "message_deleted",
+        data: {
+          messageId: messageId,
+          from_user_id: userId,
+        },
+      };
+
+      try {
+        connections[receiverId].write(`data: ${JSON.stringify(sseData)}\n\n`);
+        console.log("Delete notification sent via SSE to:", receiverId);
+      } catch (sseError) {
+        console.log("SSE send error:", sseError);
+        delete connections[receiverId];
+      }
+    }
+    res.json({ success: true, message: "Message deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};

@@ -13,8 +13,11 @@ import SkeletonUserProfile from "../components/SkeletonUserProfile";
 import SkeletonPostCard from "../components/SkeletonPostCard";
 import SharePostCard from "../components/SharePostCard";
 import { useTranslation } from "react-i18next";
+import CoverPhoto from "../components/profile/CoverPhoto";
+import MediaModal from "../components/profile/MediaModal";
+import CommentModal from "../components/CommentModal";
 
-const Profile = () => {
+const Profile = ({ post }) => {
   const currentUser = useSelector((state) => state.user.value);
 
   const { t } = useTranslation();
@@ -25,6 +28,10 @@ const Profile = () => {
   const [shares, setShares] = useState([]);
   const [activeTab, setActiveTab] = useState("posts");
   const [showEdit, setShowEdit] = useState(false);
+  const [isOpenCoverModal, setIsOpenCoverModal] = useState(false);
+  const [isOpenMediaModal, setIsOpenMediaModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const fetchUser = async (profileId) => {
     const token = await getToken();
@@ -76,9 +83,11 @@ const Profile = () => {
           <div className="h-40 md:h-56 bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200">
             {user.cover_photo && (
               <img
-                src={user.cover_photo}
-                alt=""
-                className="w-full h-full object-cover"
+                src={user.cover_photo || "/default-cover_photo.png"}
+                alt="cover"
+                className="w-full h-full object-cover cursor-pointer"
+                onClick={() => setIsOpenCoverModal(true)}
+                onError={(e) => (e.target.src = "/default-cover_photo.png")}
               />
             )}
           </div>
@@ -88,11 +97,18 @@ const Profile = () => {
             profileId={profileId}
             setShowEdit={setShowEdit}
           />
+
+          <CoverPhoto
+            isOpen={isOpenCoverModal}
+            onClose={() => setIsOpenCoverModal(false)}
+            imageUrl={user.cover_photo}
+            type="cover"
+          />
         </div>
 
         <div className="mt-6">
           <div className="bg-white dark:bg-primary-dark rounded-xl shadow p-1 flex max-w-md mx-auto">
-            {["posts", "media", "likes", "shares"].map((tab) => (
+            {["posts", "media", "shares"].map((tab) => (
               <button
                 onClick={() => setActiveTab(tab)}
                 key={tab}
@@ -142,28 +158,39 @@ const Profile = () => {
               {posts
                 .filter((post) => post.image_urls.length > 0)
                 .map((post) => (
-                  <>
+                  <React.Fragment key={post._id}>
                     {post.image_urls.map((image, index) => (
-                      <Link
-                        target="_blank"
-                        to={image}
+                      <div
                         key={index}
-                        className="relative group"
+                        className="relative group cursor-pointer"
+                        onClick={() => {
+                          setSelectedImage(image);
+                          setSelectedPost(post)
+                          setIsOpenMediaModal(true);
+                        }}
                       >
                         <img
                           src={image}
-                          key={index}
-                          className="w-64 aspect-video object-cover"
+                          className="w-64 aspect-video object-cover border border-gray-300 rounded"
                           alt=""
                         />
                         <p className="absolute bottom-0 right-0 text-xs p-1 px-3 backdrop-blur-xl text-white opacity-0 group-hover:opacity-100 transition duration-300">
-                          {t("Posted") }{moment(post.createdAt).fromNow()}
+                          {t("Posted")} {moment(post.createdAt).fromNow()}
                         </p>
-                      </Link>
+                      </div>
                     ))}
-                  </>
+                  </React.Fragment>
                 ))}
             </div>
+          )}
+          {selectedPost && (
+            <CommentModal
+              post={selectedPost}
+              isOpen={isOpenMediaModal}
+              onClose={() => setIsOpenMediaModal(false)}
+              currentUser={currentUser}
+              selectedImage={selectedImage}
+            />
           )}
         </div>
       </div>

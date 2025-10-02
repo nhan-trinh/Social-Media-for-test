@@ -8,7 +8,7 @@ import {
   Reply,
   ImageIcon,
 } from "lucide-react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
 import api from "../api/axios";
 import { useAuth } from "@clerk/clerk-react";
@@ -321,8 +321,6 @@ const CommentModal = ({
     setReplyingTo(commentId);
     setReplyContent(`@${username} `);
   };
-
-
 
   // Early return sau khi tất cả hooks đã được gọi
   if (!isOpen) return null;
@@ -713,6 +711,15 @@ const CommentModal = ({
                                         {reply.likes_count.length}
                                       </span>
                                     )}
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleReply(reply._id, c.user.username);
+                                    }}
+                                    className="text-xs hover:text-indigo-500 transition cursor-pointer"
+                                  >
+                                    {t("Reply")}
                                   </button>
                                   {reply.user._id === currentUser._id && (
                                     <>

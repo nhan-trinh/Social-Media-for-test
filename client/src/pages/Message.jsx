@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Eye, MessageSquare } from "lucide-react";
+import { MessageSquare, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
 import { useSelector } from "react-redux";
@@ -14,7 +14,6 @@ const Message = () => {
   const [recentMessages, setRecentMessages] = useState({});
   const [unseenCounts, setUnseenCounts] = useState({});
 
-  // Fetch tin nhắn gần đây cho mỗi connection
   const fetchRecentMessages = async () => {
     try {
       const token = await getToken();
@@ -65,7 +64,10 @@ const Message = () => {
         minute: "2-digit",
       });
     } else {
-      return date.toLocaleDateString("vi-VN");
+      return date.toLocaleDateString("vi-VN", { 
+        day: '2-digit',
+        month: '2-digit'
+      });
     }
   };
 
@@ -78,115 +80,109 @@ const Message = () => {
   };
 
   return (
-    <div className="min-h-screen dark:bg-gray-900 relative bg-slate-50">
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="mb-8">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              {t("Messages")}
-            </h1>
-            {/* Connection status sẽ được quản lý từ global state */}
-          </div>
-          <p className="text-slate-600 dark:text-gray-400">
+    <div className="min-h-screen dark:bg-gray-900 bg-slate-50">
+      <div className="max-w-3xl mx-auto p-4 sm:p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">
+            {t("Messages")}
+          </h1>
+          <p className="text-sm text-slate-600 dark:text-gray-400">
             {t("Talk to your friends and family")}
           </p>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="space-y-2">
           {connections.map((user) => {
             const lastMessage = recentMessages[user._id];
             const unseenCount = unseenCounts[user._id] || 0;
+            const hasUnread = unseenCount > 0;
 
             return (
               <div
                 key={user._id}
-                className={`max-w-xl flex flex-wrap gap-5 p-6 bg-white dark:bg-primary-dark shadow rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                  unseenCount > 0 ? "border-l-4 border-blue-500" : ""
-                }`}
                 onClick={() => handleChatClick(user._id)}
+                className={`
+                  relative bg-white dark:bg-gray-800 rounded-xl p-4
+                  hover:bg-gray-50 dark:hover:bg-gray-750 
+                  transition-all duration-200 cursor-pointer
+                  border border-gray-100 dark:border-gray-700
+                  hover:shadow-md hover:-translate-y-0.5
+                  ${hasUnread ? 'ring-2 ring-indigo-500/20' : ''}
+                `}
               >
-                <div className="relative">
-                  <img
-                    src={user.profile_picture}
-                    alt=""
-                    className="rounded-full size-12 mx-auto cursor-pointer ring ring-gray-100 dark:ring-gray-800 shadow"
-                  />
-                  {unseenCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
-                      {unseenCount > 99 ? "99+" : unseenCount}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p
-                        className={`font-medium text-slate-700 dark:text-white ${
-                          unseenCount > 0 ? "font-bold" : ""
-                        }`}
-                      >
-                        {user.full_name}
-                      </p>
-                      <p className="text-slate-500 text-sm">@{user.username}</p>
-                    </div>
-                    {lastMessage && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {formatTime(lastMessage.createdAt)}
+                <div className="flex items-center gap-4">
+                  {/* Avatar with online status */}
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={user.profile_picture}
+                      alt={user.full_name}
+                      className="w-14 h-14 rounded-full object-cover ring-2 ring-white dark:ring-gray-800"
+                    />
+                    {hasUnread && (
+                      <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs font-bold rounded-full h-6 min-w-[24px] px-1.5 flex items-center justify-center shadow-lg">
+                        {unseenCount > 99 ? "99+" : unseenCount}
                       </span>
                     )}
                   </div>
 
-                  {lastMessage ? (
-                    <div className="mt-2">
-                      <p
-                        className={`text-sm text-gray-600 truncate ${
-                          unseenCount > 0 ? "font-medium" : ""
-                        }`}
-                      >
-                        {lastMessage.from_user_id === currentUserId
-                          ? "You: "
-                          : ""}
-                        {lastMessage.message_type === "image"
-                          ? "📷 Image"
-                          : lastMessage.text}
-                      </p>
+                  {/* Message content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <h3 className={`text-base font-semibold text-slate-900 dark:text-white truncate ${hasUnread ? 'font-bold' : ''}`}>
+                        {user.full_name}
+                      </h3>
+                      {lastMessage && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 flex-shrink-0">
+                          {formatTime(lastMessage.createdAt)}
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <p className="text-sm text-gray-400 mt-2">
-                      {t("No messages yet")}
-                    </p>
-                  )}
-                </div>
 
-                <div className="flex flex-col gap-2 mt-4">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleChatClick(user._id);
-                    }}
-                    className="size-10 flex items-center justify-center text-sm rounded bg-slate-100 dark:bg-gray-900 hover:bg-slate-200 text-slate-800 active:scale-95 transition cursor-pointer gap-1"
-                  >
-                    <MessageSquare className="w-4 h-4 dark:text-gray-50" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/profile/${user._id}`);
-                    }}
-                    className="size-10 flex items-center justify-center text-sm rounded bg-slate-100 dark:bg-gray-900 hover:bg-slate-200 text-slate-800 active:scale-95 transition cursor-pointer"
-                  >
-                    <Eye className="w-4 h-4  dark:text-gray-50" />
-                  </button>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                      @{user.username}
+                    </p>
+
+                    {lastMessage ? (
+                      <div className="flex items-center gap-2">
+                        {lastMessage.message_type === "image" && (
+                          <span className="text-gray-400">📷</span>
+                        )}
+                        <p className={`text-sm truncate ${
+                          hasUnread 
+                            ? 'text-slate-900 dark:text-white font-medium' 
+                            : 'text-gray-600 dark:text-gray-300'
+                        }`}>
+                          {lastMessage.from_user_id === currentUserId && (
+                            <span className="text-gray-500">You: </span>
+                          )}
+                          {lastMessage.message_type === "image"
+                            ? "Image"
+                            : lastMessage.text}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                        {t("No messages yet")}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Arrow icon */}
+                  <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                 </div>
               </div>
             );
           })}
 
           {connections.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">{t("No messages yet")}</p>
-              <p className="text-gray-400">
+            <div className="text-center py-16">
+              <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                <MessageSquare className="w-10 h-10 text-gray-400" />
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 text-lg font-medium mb-2">
+                {t("No messages yet")}
+              </p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm">
                 {t("Connect with friends to start messaging")}
               </p>
             </div>

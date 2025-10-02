@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, lazy } from "react";
 import { assets } from "../assets/assets";
 import StoriesBar from "../components/StoriesBar";
 import PostCard from "../components/PostCard";
@@ -9,6 +9,7 @@ import api from "../api/axios";
 import toast from "react-hot-toast";
 import SkeletonStoriesBar from "../components/SkeletonStoriesBar";
 import SkeletonPostCard from "../components/SkeletonPostCard";
+const WhoToFollow = lazy(() => import("../components/Whotofollow"))
 
 const Feed = () => {
   const [feed, setFeed] = useState([]);
@@ -228,23 +229,7 @@ const Feed = () => {
 
       <div className="max-xl:hidden sticky top-0">
         <div className="max-w-xs bg-white dark:bg-primary-dark text-xs p-4 rounded-md inline-flex flex-col gap-2 shadow">
-          <h3 className="text-slate-800 dark:text-gray-400 font-semibold">
-            Sponsored
-          </h3>
-          <img
-            src={assets.sponsored_img}
-            className="w-75 h-50 rounded-md"
-            loading="lazy"
-            decoding="async"
-            width={300}
-            height={200}
-            alt=""
-          />
-          <p className="text-slate-600">Email marketing</p>
-          <p className="text-slate-400 dark:text-gray-400">
-            SuperCharge your marketing with a powerful, easy-to-use platform
-            built for results.
-          </p>
+          <WhoToFollow /> 
         </div>
         <RecentMessage />
       </div>

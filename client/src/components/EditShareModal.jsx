@@ -1,5 +1,5 @@
 import { X, Edit, BadgeCheck } from "lucide-react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
 import { useAuth } from "@clerk/clerk-react";
 import api from "../api/axios";
@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
 import { useTranslation } from "react-i18next";
-import successSound from "../sounds/success.mp3"
+// import successSound from "../sounds/success.mp3"
 
 const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
   const [content, setContent] = useState("");
@@ -24,7 +24,7 @@ const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
     }
   }, [isOpen, post.content]);
 
-  const successAudio = useRef(new Audio(successSound));
+  // const successAudio = useRef(new Audio(successSound));
 
   const handleUpdate = async () => {
     if (!content.trim()) {
@@ -45,7 +45,7 @@ const EditShareModal = ({ isOpen, onClose, post, onPostUpdated }) => {
       );
 
       if (data.success) {
-        successAudio.current.play().catch(() => {});
+        // successAudio.current.play().catch(() => {});
         toast.success("Post updated successfully");
         onClose();
         // Callback để parent component cập nhật UI

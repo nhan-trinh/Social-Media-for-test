@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import imagekit from "../configs/imagekit.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
@@ -20,7 +20,7 @@ export const addPost = async (req, res) => {
     if (images.length) {
       image_urls = await Promise.all(
         images.map(async (image) => {
-          const fileBuffer = fs.readFileSync(image.path);
+          const fileBuffer = await fs.readFile(image.path);
           const response = await imagekit.upload({
             file: fileBuffer,
             fileName: image.originalname,
@@ -99,12 +99,12 @@ export const getFeedPosts = async (req, res) => {
       })
     );
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       posts: postsWithCommentCount,
       hasMore,
       totalPosts: total,
-      currentPage: page
+      currentPage: page,
     });
   } catch (error) {
     console.log(error);

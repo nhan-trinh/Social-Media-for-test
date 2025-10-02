@@ -1,12 +1,12 @@
 import { X, Edit, BadgeCheck } from "lucide-react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
 import { useAuth } from "@clerk/clerk-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 import useOutsideClickOrScroll from "../hooks/useOutsideClickOrScroll";
 import { useTranslation } from "react-i18next";
-import successSound from "../sounds/success.mp3"
+// import successSound from "../sounds/success.mp3"
 
 const EditModal = ({ isOpen, onClose, post, onPostUpdated }) => {
   const [content, setContent] = useState("");
@@ -22,7 +22,7 @@ const EditModal = ({ isOpen, onClose, post, onPostUpdated }) => {
     }
   }, [isOpen, post.content]);
 
-  const successAudio = useRef(new Audio(successSound));
+  // const successAudio = useRef(new Audio(successSound));
 
   const handleUpdate = async () => {
     if (!content.trim()) {
@@ -43,7 +43,7 @@ const EditModal = ({ isOpen, onClose, post, onPostUpdated }) => {
       );
 
       if (data.success) {
-        successAudio.current.play().catch(() => {});
+        // successAudio.current.play().catch(() => {});
         toast.success("Post updated successfully");
         onClose();
         // Callback để parent component cập nhật UI
@@ -124,7 +124,7 @@ const EditModal = ({ isOpen, onClose, post, onPostUpdated }) => {
               onChange={(e) => setContent(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="What's on your mind?"
-              className="w-full min-h-[120px] p-3 border border-gray-300 dark:border-gray-700 rounded-lg resize-none outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+              className="w-full resize-none max-h-20 mt-4 text-sm outline-none placeholder-gray-400"
               disabled={isUpdating}
             />
             <div className="flex justify-between items-center mt-2">
